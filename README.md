@@ -1,2 +1,2 @@
-# Proyecto-IWG400
-amongus
+# feature diseño web UI/UX
+encargado: Gabriel Riquelme
