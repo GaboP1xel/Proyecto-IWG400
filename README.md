@@ -1,2 +1,11 @@
-# feature diseño web UI/UX
-encargado: Gabriel Riquelme
+# Proyecto Inicial IWG400
+
+Main branch: no se toca hasta que toda la app este funcional
+
+Develop branch: se usara para testear los featuresy posteriormente integrarlos a main, arreglar posibles conflictos de archivos
+
+
+
+# Feature diseño web UI/UX
+
+Encargado: Gabriel Riquelme
