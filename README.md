@@ -1,3 +1,4 @@
-# Develop branch
+# Proyecto Inicial IWG400
 
-esta rama se usara para testear los features e integrarlos y arreglar posibles errores de conflictos
+Main branch: no se toca hasta que toda la app este funcional
+Develop branch: se usara para testear los featuresy posteriormente integrarlos a main, arreglar posibles conflictos de archivos
