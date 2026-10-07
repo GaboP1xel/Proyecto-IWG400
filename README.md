@@ -8,3 +8,5 @@ Develop branch: se usara para testear los featuresy posteriormente integrarlos a
 
 
 # Feature arquitectura base y base de datos con Django
+
+Encargado: David Steck
