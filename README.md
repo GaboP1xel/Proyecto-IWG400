@@ -3,3 +3,6 @@
 Main branch: no se toca hasta que toda la app este funcional
 
 Develop branch: se usara para testear los featuresy posteriormente integrarlos a main, arreglar posibles conflictos de archivos
+
+# feature mapa interactivo
+Encargados: Gabriel Riquelme, Francisca Santelices
