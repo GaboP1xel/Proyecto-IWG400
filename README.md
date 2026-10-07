@@ -1,2 +1,2 @@
-# Proyecto-IWG400
-amongus
+# feature notificaciones
+Encargada: Francisca Santelices
