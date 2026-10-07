@@ -1,3 +1,2 @@
-# Main branch
-
-no se toca hasta que tengamos toda la app integrada en develop y funcionando
+# feature reporte de residuos solidos
+encargados: David Steck, David Soto
