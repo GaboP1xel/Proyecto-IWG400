@@ -6,6 +6,6 @@ Develop branch: se usara para testear los featuresy posteriormente integrarlos a
 
 
 
-# Feature diseño web UI/UX
+# Feature notificaciones
 
-Encargado: Gabriel Riquelme
+Encargada: Francisca Santelices
