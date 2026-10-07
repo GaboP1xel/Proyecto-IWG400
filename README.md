@@ -1,2 +1,2 @@
-# Proyecto-IWG400
-amongus
+# feature recopilacion de datos
+encargados: Juan Reyes, David Soto
