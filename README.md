@@ -1,2 +1,2 @@
-# Proyecto-IWG400
-amongus
+# feature arquitectura base proyecto + django
+encargado: David Steck
