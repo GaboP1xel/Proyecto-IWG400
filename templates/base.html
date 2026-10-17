@@ -1,0 +1,50 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <title>Nombre-App</title>
+</head>
+
+<body>
+    <header class="header">
+
+        <nav class="base-nav">
+
+            <div class="nav-logo">
+                <img src="{% static 'images/logo.png' %}" alt="Logo de Nombre-App">
+            </div>
+
+            <search class="nav-search-bar">
+                <form action="{% url 'search' %}" method="get">
+                    <input type="text" name="q" placeholder="Buscar...">
+                    <button type="submit">Buscar</button>
+                </form>
+            </search>
+
+            <button class="nav-menu-toggle" aria-haspopup="true" aria-expanded="false">☰</button>
+
+            <ul class="nav-menu" style="display: none;">
+                <li><a href="{% url 'home' %}">Inicio</a></li>
+                <li><a href="{% url 'about' %}">Acerca de</a></li>
+                <li><a href="{% url 'contact' %}">Contacto</a></li>
+            </ul>
+
+        </nav>
+        
+    </header>
+
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Nombre-App. Todos los derechos reservados.</p>
+    </footer>
+    
+    <script src="{% static 'js/base.js' %}"></script>
+</body>
+</html>
