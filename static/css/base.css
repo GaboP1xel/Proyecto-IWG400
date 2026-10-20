@@ -1,0 +1,61 @@
+
+/* Variables globales para la aplicación */
+
+:root {
+    --app-base-color: #558ac0;
+    --app-base-color-dark: #3b5f8a;
+    --app-base-color-light: #7aaed9;
+    --app-text-style: 'Arial', sans-serif;
+}
+
+body {
+    
+    min-width: 10rem;
+    width: 100%;
+    min-height: 20rem;
+    height: 100dvh;
+    display: grid;
+    grid-template-areas:
+        "header"
+        "content"
+        "footer"
+    ;
+    grid-template-rows: auto 1fr auto;
+    grid-template-columns: 1fr;
+}
+
+.header {
+    background-color: var(--app-base-color);
+    height: 10dvh;
+    min-height: 3rem;
+    display: flex;
+}
+
+.base-nav {
+    box-sizing: border-box;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content:space-between;
+    align-items: center;
+    gap: 1rem;
+    padding: 1dvh 4dvw;
+}
+
+.nav-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nav-logo img {
+    height: 6dvh;
+    min-height: 1.5rem;
+    width: auto;
+}
+
+.nav-search-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
