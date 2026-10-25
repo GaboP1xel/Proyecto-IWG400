@@ -19,9 +19,11 @@
             </div>
 
             <search class="nav-search-bar">
-                <form method="get">
-                    <input type="text" name="q" placeholder="Buscar...">
-                    <button type="submit">Buscar</button>
+                <form class="nav-search-form" method="get">
+                    <input class="nav-search-input" type="text" name="q" placeholder="Buscar..."><!--
+                --><button class="nav-search-button" type="submit">
+                    <img src="{% static 'img/nav-search-icon.svg' %}" alt="Buscar">
+                </button>
                 </form>
             </search>
 
