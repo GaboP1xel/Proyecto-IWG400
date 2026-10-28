@@ -19,6 +19,5 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('mapa/', include('mapa.urls')),
     path('', include('mapa.urls')),  # Ruta raíz redirige a la app 'mapa'
 ]
