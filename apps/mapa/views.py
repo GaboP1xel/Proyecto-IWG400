@@ -41,7 +41,7 @@ def mapa_view(request):
 
     # 3. Enviamos los datos empaquetados como JSON al HTML
     contexto = {
-        'titulo': 'MAAB - Mapa de Calidad del Aire',
+        'titulo': 'Mapa de Calidad Ambiental en Chile',
         'estaciones_json': json.dumps(datos_estaciones),
         'total_estaciones': len(datos_estaciones),
     }
