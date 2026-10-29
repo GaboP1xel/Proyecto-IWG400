@@ -20,6 +20,7 @@ def clasificar_calidad_aire(valor):
         return 'Emergencia', '#6f42c1'      # Morado
 
 def mapa_view(request):
+
     # 1. Obtenemos todas las mediciones de la base de datos
     mediciones = MedicionAire.objects.all()
 
