@@ -80,8 +80,14 @@ map.addEventListener('click', function (e) {
     const popup = L.popup({ className: 'custom-popup', minWidth: 100, minHeight: 50 })
         .setLatLng(e.latlng)
         .setContent(`
-            <b>¡Hola!</b>
-            <br>Haz clic en un marcador para ver información sobre la estación.
+            <div>
+                <h4>Aire:</h4>
+                <br>Haz clic en un marcador para ver información sobre la estación.
+            </div>
+            <div>
+                <h4>Agua:</h4>
+                <br>Haz clic en un marcador para ver información sobre la estación.
+            </div>
             `)
         .openOn(map)
 });
