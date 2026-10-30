@@ -78,7 +78,7 @@ inputBuscar.addEventListener('keydown', function (e) {
 
 map.addEventListener('click', function (e) {
 
-    if (!estaciones || estaciones.length === 0) {
+    if (estaciones.length === 0) {
         L.popup()
             .setLatLng(e.latlng)
             .setContent("No se pudieron cargar los datos de las estaciones en este momento.")

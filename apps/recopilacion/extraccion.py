@@ -199,7 +199,7 @@ FueraDeChile,SO2,5.0,ppb,2026-03-29 10:00:00,10.0,20.0
 
     print("Iniciando prueba local de limpieza de datos...")
     with patch("__main__.descargar", return_value=csv_prueba):
-        resultados = extraer_mediciones("https://sinca.mma.gob.cl/test", "SINCA")
+        resultados = extraer_mediciones("https://sinca.mma.gob.cl/", "SINCA")
         print(f"\nRegistros procesados con éxito: {len(resultados)} (de 5 ingresados)")
         print("\nDatos limpios listos para guardar o enviar a la API:")
         for r in resultados:
