@@ -6,7 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
     <link rel="stylesheet" href="{% static 'css/normalize.css' %}">
-    <title>Nombre-App</title>
+    <title>{% block title %}{% endblock %}</title>
+
+    {% block extra_head %}
+    {% endblock %}
 </head>
 
 <body>
@@ -19,12 +22,12 @@
             </div>
 
             <search class="nav-search-bar">
-                <form class="nav-search-form" method="get">
-                    <input class="nav-search-input" type="text" name="q" placeholder="Buscar..."><!--
-                --><button class="nav-search-button" type="submit">
-                    <img src="{% static 'img/nav-search-icon.svg' %}" alt="Buscar">
-                </button>
-                </form>
+                <div class="nav-search-form">
+                    <input class="nav-search-input" id="inputBuscar" type="text" placeholder="Buscar...">
+                    <button class="nav-search-button" type="submit">
+                        <img src="{% static 'img/nav-search-icon.svg' %}" alt="Buscar">
+                    </button>
+                </div>
             </search>
 
             <button class="nav-menu-toggle" aria-haspopup="true" aria-expanded="false">☰</button>
@@ -49,5 +52,7 @@
     </footer>
     
     <script src="{% static 'js/base.js' %}"></script>
+    {% block extra_js %}
+    {% endblock %}
 </body>
 </html>

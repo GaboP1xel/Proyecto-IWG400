@@ -30,10 +30,14 @@ body {
 /* Navigation Bar styles */
 
 .header {
+    position: absolute;
+    top: 0;
+    width: 100%;
     background-color: var(--app-base-color);
     height: 10dvh;
     min-height: 3rem;
     display: flex;
+    z-index: 1200;
 }
 
 .base-nav {
@@ -63,6 +67,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    min-width: 100px;
     width: 100%;
     height: 100%;
 }
@@ -114,9 +119,13 @@ body {
 /* Footer styles */
 
 footer {
+    position: absolute;
+    width: 100%;
+    bottom: 0;
     background-color: var(--app-base-gray-color);
     min-height: 3rem;
     display: flex;
     justify-content: center;
     align-items: center;
+    z-index: 1300;
 }
