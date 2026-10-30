@@ -73,3 +73,15 @@ inputBuscar.addEventListener('keydown', function (e) {
             });
     }
 });
+
+// Popup de informacion para el usuario.
+
+map.addEventListener('click', function (e) {
+    const popup = L.popup({ className: 'custom-popup', minWidth: 100, minHeight: 50 })
+        .setLatLng(e.latlng)
+        .setContent(`
+            <b>¡Hola!</b>
+            <br>Haz clic en un marcador para ver información sobre la estación.
+            `)
+        .openOn(map)
+});
