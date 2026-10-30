@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     'mapa',
    # 'login',
    # 'notificaciones',
-    #'recopilacion',
+    'recopilacion',
     #'reportes'
 ]
 
@@ -61,7 +61,7 @@ ROOT_URLCONF = 'core_project.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],  # Directorio de plantillas a nivel del proyecto
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
