@@ -22,7 +22,7 @@
 
 {% block extra_js %}
 
-    [[<script id="estaciones-data" type="application/json">{{ estaciones_json|safe }}</script>]]
+    <script id="estaciones-data" type="application/json">{{ estaciones_json|safe }}</script>
     <script>
         const estaciones = JSON.parse(document.getElementById('estaciones-data').textContent);
     </script>

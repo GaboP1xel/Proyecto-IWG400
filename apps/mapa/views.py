@@ -2,7 +2,8 @@ from django.shortcuts import render
 
 import json
 from django.shortcuts import render
-from .models import MedicionAire
+from models import MedicionAire
+from apps.recopilacion.extraccion import extraer_mediciones
 
 def clasificar_calidad_aire(valor):
     """
@@ -22,7 +23,7 @@ def clasificar_calidad_aire(valor):
 def mapa_view(request):
 
     # 1. Obtenemos todas las mediciones de la base de datos
-    mediciones = MedicionAire.objects.all()
+    mediciones = extraer_mediciones(url='https://sinca.mma.gob.cl/', fuente='SINCA')
 
     # 2. Las convertimos a formato lista para que JavaScript las entienda
     datos_estaciones = []

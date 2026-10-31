@@ -77,11 +77,39 @@ inputBuscar.addEventListener('keydown', function (e) {
 // Popup de informacion para el usuario.
 
 map.addEventListener('click', function (e) {
+
+    if (estaciones.length === 0) {
+        L.popup()
+            .setLatLng(e.latlng)
+            .setContent("No se pudieron cargar los datos de las estaciones en este momento.")
+            .openOn(map);
+        return;
+    }
+
+    let max_distance = Infinity;
+    let nearest_station = 0;
+
+    estaciones.forEach(function (estacion, index) {
+        const distance = map.distance(e.latlng, L.latLng(estacion.lat, estacion.lon));
+        if (distance < max_distance) {
+            max_distance = distance;
+            nearest_station = index;
+        }
+    });
+
+    const est = estaciones[nearest_station];
     const popup = L.popup({ className: 'custom-popup', minWidth: 100, minHeight: 50 })
         .setLatLng(e.latlng)
         .setContent(`
-            <b>¡Hola!</b>
-            <br>Haz clic en un marcador para ver información sobre la estación.
-            `)
+                <div>
+                    <h4>Aire:</h4>
+                        <p>${est.color}</p>
+                    <br>Haz clic en un marcador para ver información sobre la estación.
+                </div>
+                <div>
+                    <h4>Agua:</h4>
+                    <br>Haz clic en un marcador para ver información sobre la estación.
+                </div>
+                `)
         .openOn(map)
 });
