@@ -2,7 +2,7 @@ from django.shortcuts import render
 
 import json
 from django.shortcuts import render
-from models import MedicionAire
+from .models import MedicionAire
 from apps.recopilacion.extraccion import extraer_mediciones
 
 def clasificar_calidad_aire(valor):
