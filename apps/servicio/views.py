@@ -5,7 +5,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.http import JsonResponse
 from django.views.decorators.http import require_GET
 
-from .extraccion import ErrorExtraccion, extraer_mediciones_nacional
+from apps.recopilacion.extraccion import ErrorExtraccion, extraer_mediciones_nacional
 
 
 class SINCAJSONEncoder(DjangoJSONEncoder):
