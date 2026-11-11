@@ -3,6 +3,19 @@
 const map = L.map('map', {
     zoomControl: false
 }).setView([-33.4489, -70.6693], 6);
+
+function escapeHtml(value) {
+    return String(value == null ? "" : value).replace(/[&<>"']/g, function (char) {
+        return {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;"
+        }[char];
+    });
+}
+
 // B. Cargar la capa base abierta de ESRI (100% libre y sin API Key)
 L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
     attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ, TomTom, Intermap, iPC, USGS, FAO, NPS, NRCAN, GeoBase, Kadaster NL, Ordnance Survey, Esri Japan, METI, Esri China (Hong Kong), and the GIS User Community',
@@ -18,16 +31,40 @@ estaciones.forEach(est => {
         fillOpacity: 0.8
     }).addTo(map);
 
+    const region = est.region || "";
+    const promedioPh = region ? aguaPhData.regions[region] : null;
+    const aguaMarkup = promedioPh
+        ? `<p style="margin: 8px 0 0 0; font-size: 0.85rem;">
+                <strong>Promedio regional de pH (agua potable):</strong>
+                ${escapeHtml(promedioPh.average)} pH
+                <br>${escapeHtml(promedioPh.service_count)} servicios con valor y región identificada
+            </p>`
+        : `<p style="margin: 8px 0 0 0; font-size: 0.85rem;">
+                No hay un promedio regional de pH disponible para esta estación.
+            </p>`;
+
     marker.bindPopup(`
         <div style="font-family: sans-serif; min-width: 150px;">
-            <h6 style="margin: 0 0 5px 0; font-weight: bold;">${est.estacion}</h6>
-            <span style="background: ${est.color}; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; font-weight: bold;">
-                ${est.estado}
+            <h6 style="margin: 0 0 5px 0; font-weight: bold;">${escapeHtml(est.estacion)}</h6>
+            <span style="background: ${escapeHtml(est.color)}; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; font-weight: bold;">
+                ${escapeHtml(est.estado)}
             </span>
             <p style="margin: 8px 0 0 0; font-size: 0.85rem;">
-                <strong>${est.parametro}:</strong> ${est.valor} ${est.unidad}
+                <strong>Región:</strong> ${escapeHtml(region || "No identificada")}
             </p>
-            <small style="color: gray;">${est.fecha}</small>
+            ${aguaMarkup}
+            <small style="color: gray;">
+                Fuente: ${escapeHtml(aguaPhData.source)} — ${escapeHtml(aguaPhData.period)}.
+                Media simple de servicios con pH numérico y región identificada.
+                ${escapeHtml(aguaPhData.services_with_region)} de
+                ${escapeHtml(aguaPhData.services_with_ph)} servicios con pH numérico fueron geocodificados;
+                ${escapeHtml(aguaPhData.services_without_region)} no tienen región confirmada.
+            </small>
+            <p style="margin: 8px 0 0 0; font-size: 0.85rem;">
+                <strong>${escapeHtml(est.parametro)}:</strong>
+                ${escapeHtml(est.valor)} ${escapeHtml(est.unidad)}
+            </p>
+            <small style="color: gray;">${escapeHtml(est.fecha)}</small>
         </div>
         `);
 });

@@ -4,6 +4,7 @@ from decimal import Decimal
 from django.core.serializers.json import DjangoJSONEncoder
 from django.shortcuts import render
 
+from apps.mapa.agua import normalizar_region, obtener_resumen_ph
 from apps.recopilacion.extraccion import extraer_mediciones_nacional
 
 
@@ -26,6 +27,7 @@ def clasificar_calidad_aire(parametro, valor):
 
 def mapa_view(request):
     mediciones = extraer_mediciones_nacional()
+    resumen_ph = obtener_resumen_ph()
     datos_estaciones = []
 
     for medicion in mediciones:
@@ -44,12 +46,14 @@ def mapa_view(request):
             "color": color,
             "lat": medicion["lat"],
             "lon": medicion["lon"],
+            "region": normalizar_region(medicion.get("region")),
             "fecha": fecha.strftime("%d/%m/%Y %H:%M") if fecha else "",
         })
 
     contexto = {
         "titulo": "Mapa de Calidad Ambiental en Chile",
         "estaciones_json": json.dumps(datos_estaciones, cls=DjangoJSONEncoder),
+        "agua_ph_json": json.dumps(resumen_ph, cls=DjangoJSONEncoder),
         "total_estaciones": len(datos_estaciones),
     }
     return render(request, "mapa/index.html", contexto)

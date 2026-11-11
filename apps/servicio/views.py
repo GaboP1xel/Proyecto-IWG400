@@ -35,8 +35,12 @@ def mediciones_api(request, fuente: str):
             encoder=SINCAJSONEncoder,
         )
 
+    datos_api = [
+        {clave: valor for clave, valor in medicion.items() if clave != "region"}
+        for medicion in datos
+    ]
     return JsonResponse(
-        datos,
+        datos_api,
         safe=False,
         encoder=SINCAJSONEncoder,
         json_dumps_params={"allow_nan": False},

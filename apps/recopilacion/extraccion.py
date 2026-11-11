@@ -247,6 +247,7 @@ def _medicion_sinca(estacion: dict, dato: dict) -> Optional[dict]:
     return {
         "fuente": "SINCA",
         "estacion": nombre,
+        "region": _texto(estacion.get("region")),
         "parametro": parametro,
         "valor": valor,
         "unidad": _unidad(fila["unit"]),
