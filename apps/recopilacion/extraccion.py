@@ -13,7 +13,7 @@ from decimal import Decimal, InvalidOperation
 from typing import Optional
 
 import requests
-from requests.exceptions import RequestException, Timeout
+from requests.exceptions import ConnectionError, HTTPError, RequestException, Timeout
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +31,7 @@ USER_AGENTS = [
 ]
 
 TIMEOUT = (10, 30)            # (conexión, lectura) en segundos
-DELAY_MIN, DELAY_MAX = 3.0, 7.0  # pausa aleatoria entre peticiones
+DELAY_MIN, DELAY_MAX = 3.0, 7.0  # pausa aleatoria entre peticiones CSV
 MAX_REINTENTOS = 3
 BACKOFF_BASE = 5              # segundos; crece exponencialmente
 
@@ -88,26 +88,40 @@ def descargar(url: str, session: Optional[requests.Session] = None) -> str:
     for intento in range(1, MAX_REINTENTOS + 1):
         try:
             resp = sesion.get(url, headers=_headers(), timeout=TIMEOUT)
-            if resp.status_code in (429, 503):
-                raise RequestException(f"Limitado por el servidor (HTTP {resp.status_code})")
-            resp.raise_for_status()
-            try:
-                return resp.content.decode("utf-8")
-            except UnicodeDecodeError:
-                return resp.content.decode("latin-1")
-        except Timeout as exc:
+        except (Timeout, ConnectionError) as exc:
             ultimo_error = exc
-            logger.warning("Timeout en %s (intento %d/%d)", url, intento, MAX_REINTENTOS)
-        except RequestException as exc:
-            ultimo_error = exc
-            logger.warning("Error de conexión en %s (intento %d/%d): %s", url, intento, MAX_REINTENTOS, exc)
+            logger.warning(
+                "Error transitorio de conexión en %s (intento %d/%d): %s",
+                url, intento, MAX_REINTENTOS, exc,
+            )
+        else:
+            if resp.status_code == 429 or 500 <= resp.status_code <= 599:
+                ultimo_error = RequestException(f"Error transitorio HTTP {resp.status_code}")
+                logger.warning(
+                    "Error transitorio HTTP %d en %s (intento %d/%d)",
+                    resp.status_code, url, intento, MAX_REINTENTOS,
+                )
+            else:
+                try:
+                    resp.raise_for_status()
+                except HTTPError as exc:
+                    raise ErrorExtraccion(
+                        f"SINCA respondió con un error permanente (HTTP {resp.status_code})."
+                    ) from exc
+                except RequestException as exc:
+                    raise ErrorExtraccion("No fue posible procesar la respuesta de SINCA.") from exc
+
+                try:
+                    return resp.content.decode("utf-8")
+                except UnicodeDecodeError:
+                    return resp.content.decode("latin-1")
 
         if intento < MAX_REINTENTOS:
             time.sleep(BACKOFF_BASE * (2 ** (intento - 1)))
 
     logger.error("Descarga abandonada tras %d intentos: %s", MAX_REINTENTOS, url)
     raise ErrorExtraccion(
-        f"No fue posible conectar con SINCA después de {MAX_REINTENTOS} intentos."
+        f"No fue posible obtener una respuesta de SINCA después de {MAX_REINTENTOS} intentos."
     ) from ultimo_error
 
 
@@ -246,7 +260,6 @@ def extraer_mediciones_nacional(url: str = URL_SINCA_API) -> list[dict]:
     """Consulta el JSON usado por el mapa de SINCA y normaliza sus mediciones recientes."""
     with requests.Session() as sesion:
         contenido = descargar(url, sesion)
-        _pausa()
 
     try:
         estaciones = json.loads(contenido)
@@ -257,24 +270,42 @@ def extraer_mediciones_nacional(url: str = URL_SINCA_API) -> list[dict]:
         raise ErrorExtraccion("La respuesta JSON de SINCA no tiene el formato esperado.")
 
     mediciones = []
+    registros_descartados = 0
+    errores_esquema = 0
     for estacion in estaciones:
-        if not isinstance(estacion, dict):
-            raise ErrorExtraccion("La respuesta JSON de SINCA contiene una estación inválida.")
-        if not all(campo in estacion for campo in ("nombre", "latitud", "longitud", "realtime")):
-            raise ErrorExtraccion(
-                "La respuesta JSON de SINCA cambió: faltan campos de una estación."
-            )
+        if not isinstance(estacion, dict) or not all(
+            campo in estacion for campo in ("nombre", "latitud", "longitud", "realtime")
+        ):
+            errores_esquema += 1
+            logger.warning("Se descarta una estación SINCA con estructura incompleta.")
+            continue
         if not isinstance(estacion["realtime"], list):
-            raise ErrorExtraccion(
-                "La respuesta JSON de SINCA cambió: realtime no es una lista."
-            )
+            errores_esquema += 1
+            logger.warning("Se descarta una estación SINCA cuyo campo realtime no es una lista.")
+            continue
 
         for dato in estacion["realtime"]:
-            if not isinstance(dato, dict):
-                raise ErrorExtraccion("La respuesta JSON de SINCA contiene una medición inválida.")
-            medicion = _medicion_sinca(estacion, dato)
+            try:
+                if not isinstance(dato, dict):
+                    raise ErrorExtraccion(
+                        "La respuesta JSON de SINCA contiene una medición inválida."
+                    )
+                fila = dato.get("tableRow")
+                if isinstance(fila, dict) and fila:
+                    registros_descartados += 1
+                medicion = _medicion_sinca(estacion, dato)
+            except ErrorExtraccion as exc:
+                errores_esquema += 1
+                logger.warning("Se descarta una medición SINCA con estructura inválida: %s", exc)
+                continue
             if medicion is not None:
                 mediciones.append(medicion)
+
+    if not mediciones and (registros_descartados or errores_esquema):
+        raise ErrorExtraccion(
+            "SINCA respondió con estaciones o mediciones, pero ninguna pudo interpretarse "
+            "con el formato esperado."
+        )
 
     logger.info("SINCA: %d mediciones válidas", len(mediciones))
     return mediciones
