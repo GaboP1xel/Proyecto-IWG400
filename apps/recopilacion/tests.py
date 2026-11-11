@@ -6,6 +6,11 @@ from unittest.mock import Mock, patch
 from django.test import Client, SimpleTestCase
 from requests.exceptions import ConnectionError, HTTPError, Timeout
 
+from apps.recopilacion.agua import (
+    calcular_promedios_ph,
+    normalizar_region,
+    obtener_resumen_ph,
+)
 from apps.recopilacion.extraccion import (
     BACKOFF_BASE,
     ErrorExtraccion,
@@ -30,6 +35,47 @@ def estacion(realtime=None, **campos):
     }
     datos.update(campos)
     return datos
+
+
+class ResumenAguaPHTests(SimpleTestCase):
+    def test_promedia_valores_numericos_por_region(self):
+        resumen = calcular_promedios_ph([
+            {"region": "Región A", "valor_promedio": "7,1"},
+            {"region": "Región A", "valor_promedio": "8.3"},
+            {"region": "Región A", "valor_promedio": ""},
+            {"region": "Región A", "valor_promedio": "<7"},
+            {"region": None, "valor_promedio": "7.5"},
+        ])
+
+        self.assertEqual(resumen["regions"]["Región A"]["average"], "7.70")
+        self.assertEqual(resumen["regions"]["Región A"]["service_count"], 2)
+        self.assertEqual(resumen["services_with_ph"], 3)
+        self.assertEqual(resumen["services_with_region"], 2)
+        self.assertEqual(resumen["services_without_region"], 1)
+
+    def test_normaliza_variantes_de_nombres_regionales(self):
+        self.assertEqual(
+            normalizar_region("Región Aysén del General Carlos Ibáñez del Campo"),
+            "Región de Aysén del General Carlos Ibáñez del Campo",
+        )
+        self.assertEqual(
+            normalizar_region("Región de Magallanes y Antártica Chilena"),
+            "Región de Magallanes y de la Antártica Chilena",
+        )
+        self.assertEqual(normalizar_region("REGIÓN DE LOS LAGOS"), "Región de Los Lagos")
+
+    def test_snapshot_siss_entrega_resumen_y_cobertura(self):
+        resumen = obtener_resumen_ph()
+
+        self.assertIn("articles-23695_recurso_202606.xlsx", resumen["source_url"])
+        self.assertEqual(resumen["period"], "Junio de 2026")
+        self.assertEqual(resumen["services_in_source"], 400)
+        self.assertEqual(resumen["services_with_ph"], 176)
+        self.assertEqual(
+            resumen["services_with_region"] + resumen["services_without_region"],
+            resumen["services_with_ph"],
+        )
+        self.assertTrue(resumen["regions"])
 
 
 class ExtraerMedicionesNacionalTests(SimpleTestCase):
