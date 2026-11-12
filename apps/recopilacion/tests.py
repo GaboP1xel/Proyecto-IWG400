@@ -200,7 +200,7 @@ class MedicionesAPITests(SimpleTestCase):
     def setUp(self):
         self.client = Client()
 
-    @patch("apps.servicio.views.extraer_mediciones_nacional")
+    @patch("apps.recopilacion.views.extraer_mediciones_nacional")
     def test_api_200_contrato_de_ocho_claves(self, mock_extraer):
         mock_extraer.return_value = [{
             "fuente": "SINCA",
@@ -224,7 +224,7 @@ class MedicionesAPITests(SimpleTestCase):
         self.assertEqual(medicion["valor"], "12.5")
         self.assertEqual(medicion["fecha"], "2026-11-08T10:00:00")
 
-    @patch("apps.servicio.views.extraer_mediciones_nacional")
+    @patch("apps.recopilacion.views.extraer_mediciones_nacional")
     def test_fuente_desconocida_devuelve_404(self, mock_extraer):
         respuesta = self.client.get("/servicio/api/mediciones/desconocida/")
 
@@ -232,7 +232,7 @@ class MedicionesAPITests(SimpleTestCase):
         mock_extraer.assert_not_called()
 
     @patch(
-        "apps.servicio.views.extraer_mediciones_nacional",
+        "apps.recopilacion.views.extraer_mediciones_nacional",
         side_effect=ErrorExtraccion("SINCA no responde."),
     )
     def test_error_de_extraccion_devuelve_502(self, _mock_extraer):
