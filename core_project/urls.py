@@ -20,5 +20,5 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('mapa.urls')),  # Ruta raíz redirige a la app 'mapa'
-        path('servicio/', include('apps.servicio.urls')),
+    path('servicio/', include('apps.recopilacion.urls')),
 ]
