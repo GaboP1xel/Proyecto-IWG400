@@ -32,12 +32,9 @@ estaciones.forEach(est => {
         `);
 });
 
-// Lógica del Buscador: buscar lugares en Chile usando la API Nominatim
-const inputBuscar = document.getElementById('inputBuscar');
-let marcadorBusqueda = null;
-inputBuscar.addEventListener('keydown', function (e) {
-    if (e.key === 'Enter') {
-        const lugar = inputBuscar.value.trim();
+function mostrarUbicacion() {
+
+    const lugar = inputBuscar.value.trim();
         if (!lugar) return;
 
         // Consultamos la API pública restringida a Chile (countrycodes=cl)
@@ -71,7 +68,21 @@ inputBuscar.addEventListener('keydown', function (e) {
                 console.error("Error al buscar:", err);
                 alert("Hubo un problema al buscar la ubicación.");
             });
+
+}
+
+// Lógica del Buscador: buscar lugares en Chile usando la API Nominatim
+const inputBuscar = document.getElementById('inputBuscar');
+const botonBuscar = document.querySelector('.nav-search-button');
+let marcadorBusqueda = null;
+inputBuscar.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') {
+        mostrarUbicacion();
     }
+});
+    
+botonBuscar.addEventListener('click', function () {
+    mostrarUbicacion();
 });
 
 // Popup de informacion para el usuario.

@@ -1,131 +1,258 @@
-
 /* Variables globales para la aplicación */
-
 :root {
     --app-base-color: #558ac0;
     --app-base-color-dark: #3b5f8a;
     --app-base-color-light: #7aaed9;
-    --app-base-gray-color: #d8d8d8;
-    --app-base-hover-color: #3b5f8a;
-    --app-gray-hover-color: #c7c7c7;
-    --app-text-style: 'Arial', sans-serif;
+    --app-base-gray-color: #f1f3f5;
+    --app-text-style: system-ui, -apple-system, sans-serif;
+    --app-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 body {
-    
-    min-width: 10rem;
+    margin: 0;
+    padding: 0;
     width: 100%;
-    min-height: 20rem;
     height: 100dvh;
     display: grid;
     grid-template-areas:
         "header"
         "content"
-        "footer"
-    ;
-    grid-template-rows: auto 1fr auto;
-    grid-template-columns: 1fr;
+        "footer";
+    grid-template-rows: 60px 1fr 35px;
+    font-family: var(--app-text-style);
+    overflow: hidden;
 }
 
 /* Navigation Bar styles */
-
 .header {
-    position: absolute;
-    top: 0;
-    width: 100%;
+    grid-area: header;
     background-color: var(--app-base-color);
-    height: 10dvh;
-    min-height: 3rem;
-    display: flex;
-    z-index: 1200;
+    box-shadow: var(--app-shadow);
+    z-index: 2000;
 }
 
 .base-nav {
-    box-sizing: border-box;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     height: 100%;
-    width: 100%;
-    display: flex;
-    justify-content:space-between;
-    align-items: center;
-    gap: 1rem;
-    padding: 1dvh 4dvw;
-}
-
-.nav-logo {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    padding: 0 2rem;
+    gap: 2rem;
 }
 
 .nav-logo img {
-    height: 6dvh;
-    min-height: 1.5rem;
+    height: 35px;
     width: auto;
+    border-radius: 8px;
 }
 
+/* Buscador (Estilo píldora) */
 .nav-search-bar {
+    flex-grow: 1;
+    max-width: 500px;
     display: flex;
-    align-items: center;
     justify-content: center;
-    min-width: 100px;
-    width: 100%;
-    height: 100%;
 }
 
 .nav-search-form {
     display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 0;
-    min-width: 100px;
-    width: 80%;
-    height: 100%;
+    width: 100%;
+    height: 38px;
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
 }
 
 .nav-search-input {
-    margin: 0;
-    padding: 0;
+    flex-grow: 1;
     border: none;
-    height: clamp(24px, 50%, 100%);
-    width: 80%;
-    border-radius: 0.5rem 0 0 0.5rem;
     outline: none;
-    padding-left: clamp(0.5rem, 1dvw, 4rem);
+    padding: 0 1.2rem;
+    font-size: 0.95rem;
+    background: transparent;
 }
 
 .nav-search-input::placeholder {
-    font-size: clamp(0.8rem, 2dvh, 6rem);
+    color: #999;
 }
 
 .nav-search-button {
+    width: 50px;
+    border: none;
+    background-color: var(--app-base-color-dark);
+    cursor: pointer;
     display: flex;
     justify-content: center;
     align-items: center;
-    margin: 0;
-    padding: 0;
-    border: none;
-    box-sizing: border-box;
-    width: clamp(24px, 20%, 50rem);
-    height: clamp(24px, 50%, 50rem);
-    background-color: var(--app-base-color-dark);
-    border-radius: 0 0.5rem 0.5rem 0;
+    transition: background-color 0.2s;
+}
+
+.nav-search-button:hover {
+    background-color: var(--app-base-color-light);
 }
 
 .nav-search-button img {
-    height: 70%;
-    width: auto;
+    height: 18px;
+    filter: brightness(0) invert(1);
 }
 
-/* Footer styles */
+/* Botón y Menú Desplegable */
+.nav-menu-toggle {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.8rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: transform 0.2s;
+}
+
+.nav-menu-toggle:hover {
+    transform: scale(1.1);
+}
+
+.nav-menu {
+    position: absolute;
+    top: 60px;
+    right: 2rem;
+    background: white;
+    box-shadow: var(--app-shadow);
+    border-radius: 0 0 8px 8px;
+    list-style: none;
+    padding: 0.5rem 0;
+    margin: 0;
+    display: none;
+    flex-direction: column;
+    min-width: 150px;
+    z-index: 2000;
+}
+
+.nav-menu li a {
+    display: block;
+    padding: 0.75rem 1.5rem;
+    color: #333;
+    text-decoration: none;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.nav-menu li a:hover {
+    background-color: var(--app-base-gray-color);
+}
+
+/* Main & Footer */
+main {
+    grid-area: content;
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
 
 footer {
-    position: absolute;
-    width: 100%;
-    bottom: 0;
+    grid-area: footer;
     background-color: var(--app-base-gray-color);
-    min-height: 3rem;
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1300;
+    font-size: 0.8rem;
+    color: #777;
+    z-index: 1000;
+}
+
+/* --- ESTILOS DEL BOTÓN AVATAR --- */
+.nav-user {
+    display: flex;
+    align-items: center;
+}
+
+.user-avatar-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    transition: transform 0.2s ease;
+}
+
+.user-avatar-btn:hover {
+    transform: scale(1.08); /* Pequeño zoom al pasar el mouse */
+}
+
+.user-avatar-btn img {
+    height: 38px;
+    width: 38px;
+    border-radius: 50%;
+    background-color: white;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+/* --- ESTILOS DEL DROPDOWN (Ventana Emergente) --- */
+.user-dropdown-menu {
+    position: absolute;
+    top: 55px; /* Lo empuja justo debajo de la barra */
+    right: 2rem; /* Lo alinea a la derecha */
+    background-color: white;
+    min-width: 220px;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    list-style: none;
+    padding: 0.5rem 0;
+    margin: 0;
+    display: none; /* Oculto por defecto */
+    flex-direction: column;
+    z-index: 2500;
+    border: 1px solid #e9ecef;
+}
+
+/* Clase dinámica que el JS activará */
+.user-dropdown-menu.active {
+    display: flex;
+    animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Elementos de la lista */
+.dropdown-header {
+    padding: 0.5rem 1.5rem;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #6c757d;
+    cursor: default;
+}
+
+.dropdown-divider {
+    border: 0;
+    border-top: 1px solid #e9ecef;
+    margin: 0.3rem 0;
+}
+
+.dropdown-item {
+    display: block;
+    padding: 0.6rem 1.5rem;
+    color: #343a40;
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: background-color 0.2s, color 0.2s;
+    cursor: pointer;
+}
+
+.dropdown-item:hover {
+    background-color: var(--app-base-gray-color, #f1f3f5);
+    color: var(--app-base-color-dark, #3b5f8a);
+}
+
+/* Botón de cerrar sesión en rojo */
+.dropdown-item.text-danger {
+    color: #dc3545;
+}
+.dropdown-item.text-danger:hover {
+    background-color: #fff5f5;
 }

@@ -52,4 +52,4 @@ def mapa_view(request):
         "estaciones_json": json.dumps(datos_estaciones, cls=DjangoJSONEncoder),
         "total_estaciones": len(datos_estaciones),
     }
-    return render(request, "mapa/index.html", contexto)
+    return render(request, "index.html", contexto)

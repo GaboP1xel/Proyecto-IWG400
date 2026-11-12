@@ -1,6 +1,7 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -24,7 +25,7 @@
             <search class="nav-search-bar">
                 <div class="nav-search-form">
                     <input class="nav-search-input" id="inputBuscar" type="text" placeholder="Buscar...">
-                    <button class="nav-search-button" type="submit">
+                    <button class="nav-search-button" type="button">
                         <img src="{% static 'img/nav-search-icon.svg' %}" alt="Buscar">
                     </button>
                 </div>
@@ -32,14 +33,43 @@
 
             <button class="nav-menu-toggle" aria-haspopup="true" aria-expanded="false">☰</button>
 
-            <ul class="nav-menu" style="display: none;">
+            <ul class="nav-menu">
                 <li><a>Inicio</a></li>
                 <li><a>Acerca de</a></li>
                 <li><a>Contacto</a></li>
             </ul>
 
+            <div class="nav-user" style="position: relative;">
+                <!-- Botón del avatar -->
+                <button id="user-menu-toggle" class="user-avatar-btn" aria-haspopup="true" aria-expanded="false">
+                    <img src="{% static 'img/nav-user-icon.svg' %}" alt="Usuario">
+                </button>
+
+                <!-- Ventana emergente (Dropdown) -->
+                <ul class="user-dropdown-menu" id="user-dropdown-menu">
+
+                    {% if request.user.is_authenticated %}
+                    <!-- OPCIÓN A: Usuario con sesión iniciada -->
+                    <li class="dropdown-header">Hola, {{ request.user.username }}</li>
+                    <li>
+                        <hr class="dropdown-divider">
+                    </li>
+                    <li><a href="{% url 'logout' %}" class="dropdown-item text-danger">Cerrar sesión</a></li>
+
+                    {% else %}
+                    <!-- OPCIÓN B: Usuario NO logueado (Invitado por defecto) -->
+                    <li class="dropdown-header">Modo Invitado</li>
+                    <li>
+                        <hr class="dropdown-divider">
+                    </li>
+                    <li><a href="{% url 'login' %}" class="dropdown-item">Iniciar sesión / Registrarse</a></li>
+                    {% endif %}
+
+                </ul>
+            </div>
+
         </nav>
-        
+
     </header>
 
     <main>
@@ -50,9 +80,10 @@
     <footer>
         <p>&copy; 2026 Nombre-App. Todos los derechos reservados.</p>
     </footer>
-    
+
     <script src="{% static 'js/base.js' %}"></script>
     {% block extra_js %}
     {% endblock %}
 </body>
+
 </html>
