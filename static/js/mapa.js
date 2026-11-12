@@ -76,7 +76,22 @@ inputBuscar.addEventListener('keydown', function (e) {
 
 // Popup de informacion para el usuario.
 
-map.addEventListener('click', function (e) {
+let popupAbierto = false;
+
+map.on('popupclose', function () {
+
+    setTimeout(() => {
+        popupAbierto = false;
+    }, 100);
+});
+
+map.on('click', function (e) {
+
+    if (popupAbierto) {
+        map.closePopup();
+        popupAbierto = false;
+        return;
+    }
 
     if (estaciones.length === 0) {
         L.popup()
@@ -98,7 +113,7 @@ map.addEventListener('click', function (e) {
     });
 
     const est = estaciones[nearest_station];
-    const popup = L.popup({ className: 'custom-popup', minWidth: 100, minHeight: 50 })
+    const popup = L.popup({ className: 'custom-popup', minWidth: 100, minHeight: 50})
         .setLatLng(e.latlng)
         .setContent(`
                 <div>
@@ -112,4 +127,6 @@ map.addEventListener('click', function (e) {
                 </div>
                 `)
         .openOn(map)
+    popupAbierto = true;
 });
+
