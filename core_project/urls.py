@@ -9,7 +9,7 @@ urlpatterns = [
     path('', include('mapa.urls')), 
     
     # Ruta para la app 'login'
-    path('login/', include('login_app.urls')),
+    path('login/', include('login.urls')),
     
     # Ruta para la app 'recopilacion'
     path('recopilacion/', include('recopilacion.urls')),
