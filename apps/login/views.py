@@ -10,7 +10,7 @@ from .forms import RegistrationForm, UsernameAuthenticationForm
 
 class UsernameLoginView(LoginView):
     authentication_form = UsernameAuthenticationForm
-    template_name = "registration/login.html"
+    template_name = "login.html"
 
 
 @require_http_methods(["GET", "POST"])
@@ -39,4 +39,4 @@ def register(request):
     else:
         form = RegistrationForm()
 
-    return render(request, "registration/register.html", {"form": form})
+    return render(request, "login.html", {"form": form})
