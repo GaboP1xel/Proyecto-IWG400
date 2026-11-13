@@ -8,9 +8,9 @@ urlpatterns = [
     # Ruta raíz redirige a la app 'mapa' (Página de inicio)
     path('', include('mapa.urls')), 
     
-    # Ruta para la app de autenticación (corregida a login_app)
+    # Ruta para la app 'login'
     path('login/', include('login_app.urls')),
     
-    # Ruta para la app de recopilación de datos
+    # Ruta para la app 'recopilacion'
     path('recopilacion/', include('recopilacion.urls')),
 ]
