@@ -32,7 +32,7 @@ def crear_reporte(request):
 
         if form.is_valid():
             reporte = form.save(commit=False)
-            reporte.usuario = request.user
+            reporte.usuario = request.user  # Se asigna automáticamente al usuario autenticado
             reporte.save()
 
             if es_json or request.headers.get("x-requested-with") == "XMLHttpRequest":
@@ -53,8 +53,10 @@ def crear_reporte(request):
                     },
                     status=201,
                 )
+            # Si fue un POST por formulario tradicional, redirige al inicio o mapa
             return redirect("/")
 
+        # Si el formulario tiene errores de validación
         if es_json or request.headers.get("x-requested-with") == "XMLHttpRequest":
             return JsonResponse({"ok": False, "errores": form.errors}, status=400)
 
@@ -71,6 +73,10 @@ def crear_reporte(request):
 
 @require_GET
 def listar_reportes_api(request):
+    """
+    Devuelve los reportes en formato JSON para pintarlos como marcadores en el mapa.
+    Permite filtrar opcionalmente por ?estado=pendiente o ?tipo_id=1
+    """
     queryset = ReporteCiudadano.objects.select_related("tipo_reporte", "usuario").exclude(
         estado="rechazado"
     )
@@ -102,5 +108,9 @@ def listar_reportes_api(request):
 
 @require_GET
 def listar_tipos_api(request):
+    """
+    Devuelve el catálogo de Tipos de Reporte disponibles en JSON
+    para poblar el selector (<select>) del formulario en el frontend.
+    """
     tipos = list(TipoReporte.objects.values("id", "nombre", "descripcion"))
     return JsonResponse({"ok": True, "tipos_reporte": tipos}, status=200)

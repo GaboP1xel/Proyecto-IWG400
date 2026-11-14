@@ -1,32 +1,46 @@
 from django import forms
-from .models import ReporteBasura
+from .models import ReporteCiudadano
 
 
-class ReporteBasuraForm(forms.ModelForm):
+class ReporteCiudadanoForm(forms.ModelForm):
     class Meta:
-        model = ReporteBasura
-        fields = ['ubicacion', 'descripcion', 'lat', 'lon']
+        model = ReporteCiudadano
+        # Solo exponemos los campos que el ciudadano debe enviar.
+        # 'usuario' y 'estado' los asigna el backend automáticamente por seguridad.
+        fields = ["tipo_reporte", "descripcion", "lat", "lon"]
         widgets = {
-            'ubicacion': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Ej: Av. Vicuna Mackenna 3939'
-            }),
-            'descripcion': forms.Textarea(attrs={
-                'class': 'form-control',
-                'rows': 4,
-                'placeholder': 'Describe el tipo de residuo o microbasural'
-            }),
-            'lat': forms.HiddenInput(),
-            'lon': forms.HiddenInput(),
+            "tipo_reporte": forms.Select(attrs={"class": "form-control"}),
+            "descripcion": forms.Textarea(
+                attrs={
+                    "class": "form-control",
+                    "rows": 3,
+                    "placeholder": "Describe el problema ambiental o microbasural...",
+                }
+            ),
+            "lat": forms.HiddenInput(),
+            "lon": forms.HiddenInput(),
         }
 
-    def clean(self):
-        cleaned_data = super().clean()
-        lat = cleaned_data.get('lat')
-        lon = cleaned_data.get('lon')
-
-        if lat is None or lon is None:
+    def clean_descripcion(self):
+        descripcion = self.cleaned_data.get("descripcion", "").strip()
+        if len(descripcion) < 10:
             raise forms.ValidationError(
-                "Debes seleccionar un punto valido en el mapa para registrar las coordenadas."
+                "La descripción es muy corta. Por favor detalla un poco más el reporte (mínimo 10 caracteres)."
             )
-        return cleaned_data
+        return descripcion
+
+    def clean_lat(self):
+        lat = self.cleaned_data.get("lat")
+        if lat is None:
+            raise forms.ValidationError("Debes seleccionar una ubicación en el mapa (latitud faltante).")
+        if not (-90.0 <= lat <= 90.0):
+            raise forms.ValidationError("La latitud ingresada no es válida (debe estar entre -90 y 90).")
+        return lat
+
+    def clean_lon(self):
+        lon = self.cleaned_data.get("lon")
+        if lon is None:
+            raise forms.ValidationError("Debes seleccionar una ubicación en el mapa (longitud faltante).")
+        if not (-180.0 <= lon <= 180.0):
+            raise forms.ValidationError("La longitud ingresada no es válida (debe estar entre -180 y 180).")
+        return lon

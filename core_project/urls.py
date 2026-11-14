@@ -13,4 +13,7 @@ urlpatterns = [
     
     # Ruta para la app 'recopilacion'
     path('recopilacion/', include('recopilacion.urls')),
+    
+    # CORRECCIÓN AQUÍ: Agrega el prefijo 'apps.'
+    path('reportes/', include('apps.reportes.urls')),
 ]
