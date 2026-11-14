@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}<title>Acceso - Mapa-app</title>{% endblock %}
+
+{% block extra_head %}
+    <!-- Enlazamos el CSS del Login -->
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <!-- Pestañas de Navegación -->
+        <div class="auth-header">
+            <button class="auth-tab active" id="tab-login" aria-selected="true">Iniciar Sesión</button>
+            <button class="auth-tab" id="tab-register" aria-selected="false">Registrarse</button>
+        </div>
+
+        <div class="auth-body">
+            <!-- Formulario de Iniciar Sesión -->
+            <form id="form-login" class="auth-form active-form" method="POST" action="">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="login-user">Usuario</label>
+                    <input type="text" id="login-user" name="username" required autocomplete="username" placeholder="Ingresa tu usuario">
+                </div>
+                <div class="form-group">
+                    <label for="login-pass">Contraseña</label>
+                    <input type="password" id="login-pass" name="password" required autocomplete="current-password" placeholder="Ingresa tu contraseña">
+                </div>
+                <button type="submit" class="auth-btn">Ingresar</button>
+            </form>
+
+            <!-- Formulario de Registro -->
+            <form id="form-register" class="auth-form" method="POST" action="">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="reg-user">Usuario</label>
+                    <input type="text" id="reg-user" name="username" required autocomplete="username" placeholder="Mínimo 4 caracteres (letras/números)">
+                    <small class="error-msg" id="err-user"></small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="reg-pass">Contraseña Segura</label>
+                    <input type="password" id="reg-pass" name="password" required autocomplete="new-password" placeholder="Crea una contraseña">
+                    
+                    <!-- Feedback de ciberseguridad moderno -->
+                    <ul class="pass-requirements" aria-live="polite">
+                        <li id="req-len" class="invalid">Mínimo 8 caracteres</li>
+                        <li id="req-up" class="invalid">Al menos una mayúscula</li>
+                        <li id="req-low" class="invalid">Al menos una minúscula</li>
+                        <li id="req-num" class="invalid">Al menos un número</li>
+                        <li id="req-spc" class="invalid">Al menos un carácter especial (@$!%*?&)</li>
+                    </ul>
+                </div>
+
+                <div class="form-group">
+                    <label for="reg-pass2">Confirmar Contraseña</label>
+                    <input type="password" id="reg-pass2" name="confirm_password" required autocomplete="new-password" placeholder="Repite tu contraseña">
+                    <small class="error-msg" id="err-pass2"></small>
+                </div>
+
+                <!-- Botón deshabilitado por defecto hasta cumplir validaciones -->
+                <button type="submit" class="auth-btn" id="btn-register" disabled>Crear cuenta</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+    <!-- Enlazamos el JS del Login -->
+    <script src="{% static 'js/login.js' %}"></script>
+{% endblock %}
