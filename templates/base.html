@@ -31,41 +31,45 @@
                 </div>
             </search>
 
-            <button class="nav-menu-toggle" aria-haspopup="true" aria-expanded="false">☰</button>
+            <div class="nav-menu-container">
 
-            <ul class="nav-menu">
-                <li><a>Inicio</a></li>
-                <li><a>Acerca de</a></li>
-                <li><a>Contacto</a></li>
-            </ul>
+                <button class="nav-menu-toggle" aria-haspopup="true" aria-expanded="false">☰</button>
 
-            <div class="nav-user" style="position: relative;">
-                <!-- Botón del avatar -->
-                <button id="user-menu-toggle" class="user-avatar-btn" aria-haspopup="true" aria-expanded="false">
-                    <img src="{% static 'img/nav-user-icon.svg' %}" alt="Usuario">
-                </button>
-
-                <!-- Ventana emergente (Dropdown) -->
-                <ul class="user-dropdown-menu" id="user-dropdown-menu">
-
-                    {% if request.user.is_authenticated %}
-                    <!-- OPCIÓN A: Usuario con sesión iniciada -->
-                    <li class="dropdown-header">Hola, {{ request.user.username }}</li>
-                    <li>
-                        <hr class="dropdown-divider">
-                    </li>
-                    <li><a href="{% url 'logout' %}" class="dropdown-item text-danger">Cerrar sesión</a></li>
-
-                    {% else %}
-                    <!-- OPCIÓN B: Usuario NO logueado (Invitado por defecto) -->
-                    <li class="dropdown-header">Modo Invitado</li>
-                    <li>
-                        <hr class="dropdown-divider">
-                    </li>
-                    <li><a href="{% url 'login' %}" class="dropdown-item">Iniciar sesión / Registrarse</a></li>
-                    {% endif %}
-
+                <ul class="nav-menu">
+                    <li><a href="{% url 'mapa' %}">Inicio</a></li>
+                    <li><a>Acerca de</a></li>
+                    <li><a>Contacto</a></li>
                 </ul>
+
+                <div class="nav-user" style="position: relative;">
+                    <!-- Botón del avatar -->
+                    <button id="user-menu-toggle" class="user-avatar-btn" aria-haspopup="true" aria-expanded="false">
+                        <img src="{% static 'img/default-user-photo.png' %}" alt="Usuario">
+                    </button>
+
+                    <!-- Ventana emergente (Dropdown) -->
+                    <ul class="user-dropdown-menu" id="user-dropdown-menu">
+
+                        {% if request.user.is_authenticated %}
+                        <!-- OPCIÓN A: Usuario con sesión iniciada -->
+                        <li class="dropdown-header">Hola, {{ request.user.username }}</li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a href="{% url 'logout' %}" class="dropdown-item text-danger">Cerrar sesión</a></li>
+
+                        {% else %}
+                        <!-- OPCIÓN B: Usuario NO logueado (Invitado por defecto) -->
+                        <li class="dropdown-header">Modo Invitado</li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a href="{% url 'login' %}" class="dropdown-item">Iniciar sesión / Registrarse</a></li>
+                        {% endif %}
+
+                    </ul>
+                </div>
+
             </div>
 
         </nav>
