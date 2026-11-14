@@ -1,5 +1,7 @@
 from django.contrib.auth import get_user_model
-from django.test import TestCase
+from django.middleware.csrf import get_token
+from django.template.loader import render_to_string
+from django.test import RequestFactory, TestCase, override_settings
 from django.urls import reverse
 
 
@@ -7,6 +9,23 @@ User = get_user_model()
 
 
 class AuthenticationViewsTests(TestCase):
+    @override_settings(ROOT_URLCONF="login.urls")
+    def test_authenticated_base_menu_posts_logout_with_csrf(self):
+        request = RequestFactory().get("/")
+        request.user = User(username="ana")
+
+        html = render_to_string(
+            "base.html",
+            {"request": request, "csrf_token": get_token(request)},
+            request=request,
+        )
+
+        self.assertIn('Hola, ana', html)
+        self.assertIn('<form method="post" action="/logout/">', html)
+        self.assertIn('name="csrfmiddlewaretoken"', html)
+        self.assertIn('type="submit" class="dropdown-item text-danger">', html)
+        self.assertIn("Cerrar sesi", html)
+
     def test_login_page_loads(self):
         response = self.client.get(reverse("login"))
 

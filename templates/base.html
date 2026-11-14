@@ -54,7 +54,12 @@
                     <li>
                         <hr class="dropdown-divider">
                     </li>
-                    <li><a href="{% url 'logout' %}" class="dropdown-item text-danger">Cerrar sesión</a></li>
+                    <li>
+                        <form method="post" action="{% url 'logout' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="dropdown-item text-danger">Cerrar sesión</button>
+                        </form>
+                    </li>
 
                     {% else %}
                     <!-- OPCIÓN B: Usuario NO logueado (Invitado por defecto) -->
