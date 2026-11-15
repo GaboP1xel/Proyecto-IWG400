@@ -107,20 +107,33 @@ body {
 }
 
 .nav-menu-toggle {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 50px;
+    height: 50px;
     margin-right: 1rem;
     background: none;
     border: none;
+    border-radius: 50%;
     color: white;
     font-size: 1.8rem;
     cursor: pointer;
     display: flex;
     align-items: center;
-    transition: transform 0.2s;
 }
 
 .nav-menu-toggle:hover {
-    transform: scale(1.1);
+    background-color: var(--app-base-color-dark);
+    animation: bg-change 0.2s;
 }
+
+@keyframes bg-change {
+    from { background-color: transparent; }
+    to { background-color: var(--app-base-color-dark); }
+}
+
+
 
 .nav-menu {
     position: absolute;
@@ -201,9 +214,10 @@ footer {
     align-items: center;
 }
 
-.user-avatar-btn:hover {
+.user-avatar-btn:hover,
+.user-avatar-btn:focus {
     background: var(--app-base-color-dark);
-    /* Pequeño zoom al pasar el mouse */
+    animation: bg-change 0.2s;
 }
 
 .user-avatar-btn img {
@@ -295,18 +309,19 @@ button.dropdown-item {
     text-align: left;
 }
 
-.dropdown-item:hover {
+.dropdown-item:hover,
+.user-dropdown-menu .dropdown-item:hover {
     background-color: var(--app-base-gray-color, #f1f3f5);
     color: var(--app-base-color-dark, #3b5f8a);
 }
 
 /* Opción de cerrar sesión en rojo */
 .user-dropdown-menu .dropdown-item.text-danger {
-    color: #dc3545 !important;
+    color: #dc3545;
 }
 
 .user-dropdown-menu .dropdown-item.text-danger:hover,
 .user-dropdown-menu .dropdown-item.text-danger:focus {
     background-color: #fff5f5;
-    color: #b02a37 !important;
+    color: #b02a37;
 }

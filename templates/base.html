@@ -21,7 +21,7 @@
             <div class="nav-logo">
                 <img src="{% static 'img/logo.png' %}" alt="Logo de Nombre-App">
             </div>
-
+            {% block search-bar %}
             <search class="nav-search-bar">
                 <div class="nav-search-form">
                     <input class="nav-search-input" id="inputBuscar" type="text" placeholder="Buscar...">
@@ -30,6 +30,7 @@
                     </button>
                 </div>
             </search>
+            {% endblock %}
 
             <div class="nav-menu-container">
 
@@ -44,7 +45,7 @@
                 <div class="nav-user" style="position: relative;">
                     <!-- Botón del avatar -->
                     <button id="user-menu-toggle" class="user-avatar-btn" aria-haspopup="true" aria-expanded="false">
-                        <img src="{% static 'img/nav-user-icon.svg' %}" alt="Usuario">
+                        <img src="{% static 'img/default-user-photo.png' %}" alt="Usuario">
                     </button>
 
                     <!-- Ventana emergente (Dropdown) -->

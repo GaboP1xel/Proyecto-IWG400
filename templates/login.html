@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="{% static 'css/login.css' %}">
 {% endblock %}
 
+{% block search-bar %}{% endblock %}
+
 {% block content %}
 <div class="auth-container">
     <div class="auth-card">
@@ -19,7 +21,7 @@
 
         <div class="auth-body">
             <!-- Formulario de Iniciar Sesión -->
-            <form id="form-login" class="auth-form active-form" method="POST" action="">
+            <form id="form-login" class="auth-form active-form" method="POST" action="{% url 'login' %}">
                 {% csrf_token %}
                 <div class="form-group">
                     <label for="login-user">Usuario</label>
@@ -33,7 +35,7 @@
             </form>
 
             <!-- Formulario de Registro -->
-            <form id="form-register" class="auth-form" method="POST" action="">
+            <form id="form-register" class="auth-form" method="POST" action="{% url 'register' %}">
                 {% csrf_token %}
                 <div class="form-group">
                     <label for="reg-user">Usuario</label>

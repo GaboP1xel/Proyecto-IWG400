@@ -15,26 +15,25 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (menuToggle && navMenu && userMenuToggle && userDropdown) {
-        // 1. Clic en hamburguesa: cierra el perfil (si estaba abierto) y alterna hamburguesa
+        // 1. Clic en hamburguesa: cierra el perfil y SOLO abre la hamburguesa
         menuToggle.addEventListener('click', (event) => {
             event.stopPropagation();
             cerrarMenuPerfil();
 
-            const isExpanded = menuToggle.getAttribute('aria-expanded') === 'true';
-            menuToggle.setAttribute('aria-expanded', !isExpanded);
-            navMenu.style.display = isExpanded ? 'none' : 'flex';
+            menuToggle.setAttribute('aria-expanded', 'true');
+            navMenu.style.display = 'flex';
         });
 
-        // 2. Clic en perfil: cierra hamburguesa (si estaba abierto) y alterna perfil
+        // 2. Clic en avatar: cierra hamburguesa y SOLO abre el perfil
         userMenuToggle.addEventListener('click', (event) => {
             event.stopPropagation();
             cerrarMenuHamburguesa();
 
-            const isExpanded = userDropdown.classList.toggle('active');
-            userMenuToggle.setAttribute('aria-expanded', isExpanded);
+            userDropdown.classList.add('active');
+            userMenuToggle.setAttribute('aria-expanded', 'true');
         });
 
-        // 3. Clic afuera: solo revisa el único menú que podría estar abierto
+        // 3. Clic afuera: sigue cerrando cualquiera de los dos si haces clic fuera
         document.addEventListener('click', (event) => {
             if (navMenu.style.display === 'flex' && !navMenu.contains(event.target)) {
                 cerrarMenuHamburguesa();
