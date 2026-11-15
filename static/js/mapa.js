@@ -1,5 +1,5 @@
 // =========================================================================
-// 1. INICIALIZAR EL MAPA Y CAPAS
+// 1. INICIALIZAR EL MAPA Y PANES
 // =========================================================================
 const map = L.map('map', {
     zoomControl: false
@@ -10,119 +10,162 @@ L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map
     maxZoom: 18
 }).addTo(map);
 
-// Crear un pane exclusivo por encima de los polígonos normales (overlayPane tiene zIndex 400)
+// Pane exclusivo por encima de los polígonos normales (overlayPane tiene zIndex 400)
 map.createPane('paneBordesRegiones');
 map.getPane('paneBordesRegiones').style.zIndex = 450;
-// Crucial: permite que los clics y el hover atraviesen este borde y lleguen a las comunas
+// Permite que los clics y el hover atraviesen este borde y lleguen a las comunas
 map.getPane('paneBordesRegiones').style.pointerEvents = 'none';
 
 // =========================================================================
-// 2. CAPAS GEOJSON: REGIONES Y COMUNAS DE CHILE
+// 2. VARIABLES DE ESTADO Y DATOS DESDE DJANGO
 // =========================================================================
 let capaRegiones = null;
+let capaBordesRegiones = null;
 let capaComunas = null;
 const ZOOM_CORTE = 9; // Nivel de zoom donde cambia de Región a Comuna
+
 let enVuelo = false;
 let popupAbierto = false;
 
-// Se dispara automáticamente cuando termina cualquier flyTo, zoom o arrastre
+const aireComunas = JSON.parse(document.getElementById('aire-comunas-data')?.textContent || '{}');
+const aireRegiones = JSON.parse(document.getElementById('aire-regiones-data')?.textContent || '{}');
+
+function normalizarTexto(texto) {
+    if (!texto) return "";
+    return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toUpperCase().replace(/\s+/g, " ");
+}
+
+// Eventos globales de movimiento y popups
 map.on('moveend', function () {
     enVuelo = false;
 });
-// Se dispara cuando se abre un popup (para evitar cerrar la capa de comunas mientras el popup está abierto)
-map.on('popupopen', function () {
+
+map.on('popupopen', function (e) {
     popupAbierto = true;
-    capaConPopupAbierto = e.popup._source || null;
 });
 
 map.on('popupclose', function () {
     setTimeout(() => {
-        popupAbierto = false;
-        capaConPopupAbierto = null;
+        if (!map._popup) {
+            popupAbierto = false;
+        }
     }, 50);
 });
 
-
-
-// Estilos base y al pasar el mouse (hover)
-const estiloRegion = {
-    color: '#2c3e50',
-    weight: 2,
-    fillColor: '#3498db',
-    fillOpacity: 0.15
-};
-
+// =========================================================================
+// 3. ESTILOS E INTERACCIÓN HOVER
+// =========================================================================
 const estiloBordeRegiones = {
-    color: '#1a252f',      // Azul oscuro / casi negro para alto contraste
-    weight: 3.5,           // Borde más grueso que el de las comunas (weight: 1)
+    color: '#1a252f',
+    weight: 3.5,
     opacity: 0.9,
-    fill: false,           // Sin relleno para no tapar las comunas ni sus colores
-    interactive: false,    // No bloquea clics ni tooltips de las comunas
+    fill: false,
+    interactive: false,
     pane: 'paneBordesRegiones'
 };
 
-const estiloComuna = {
-    color: '#e74c3c',
-    weight: 1,
-    fillColor: '#f1c40f',
-    fillOpacity: 0.15
-};
-
 function resaltarPoligono(e) {
-
-    if (enVuelo || popupAbierto) return;
-
     const layer = e.target;
+
+    if (enVuelo || popupAbierto) {
+        layer.closeTooltip();
+        return;
+    }
+
     layer.setStyle({
         weight: 3,
-        fillOpacity: 0.35
+        fillOpacity: 0.45
     });
     if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
         layer.bringToFront();
     }
 }
 
-// A. Cargar GeoJSON de Regiones (se muestra de inmediato)
+// =========================================================================
+// 4. CAPA GEOJSON: REGIONES DE CHILE
+// =========================================================================
 fetch('/static/geojson/regiones.geojson')
     .then(res => res.json())
     .then(data => {
         capaRegiones = L.geoJSON(data, {
-            style: estiloRegion,
+            style: function (feature) {
+                const regNorm = normalizarTexto(feature.properties.Region);
+                const aire = aireRegiones[regNorm];
+                return {
+                    color: '#2c3e50',
+                    weight: 2,
+                    fillColor: aire ? aire.color : '#95a5a6',
+                    fillOpacity: aire ? 0.35 : 0.15
+                };
+            },
             onEachFeature: function (feature, layer) {
                 const props = feature.properties;
                 const nombreRegion = props.Region || 'Región sin nombre';
+                const regNorm = normalizarTexto(nombreRegion);
+                const aire = aireRegiones[regNorm];
 
                 layer.bindTooltip(`<b>${nombreRegion}</b>`, { sticky: true });
 
+                let htmlAire = aire
+                    ? `<span style="background: ${aire.color}; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; font-weight: bold;">
+                           ${aire.estado}
+                       </span>
+                       <span style="font-size: 0.85rem; margin-left: 5px;">
+                           <strong>${aire.promedio} ${aire.unidad}</strong> (${aire.parametro})
+                       </span>
+                       <br><small style="color: #666;">Promedio de ${aire.total_mediciones} estación(es)</small>`
+                    : `<span style="color: gray; font-size: 0.85rem;">Sin estaciones SINCA registradas</span>`;
+
+                layer.bindPopup(`
+                    <div style="font-family: sans-serif; min-width: 210px;">
+                        <h6 style="margin: 0 0 8px 0; font-weight: bold; border-bottom: 1px solid #ddd; padding-bottom: 4px;">
+                            ${nombreRegion}
+                        </h6>
+                        <div style="margin-bottom: 6px;">
+                            <small style="color: #555; font-weight: bold; display: block; margin-bottom: 2px;">
+                                CALIDAD DEL AIRE (Promedio Regional)
+                            </small>
+                            ${htmlAire}
+                        </div>
+                        <small style="display: block; margin-top: 8px; color: #0d6efd;">
+                            <i>Doble clic o acerca el mapa para ver comunas</i>
+                        </small>
+                    </div>
+                `);
+
                 layer.on({
                     mouseover: resaltarPoligono,
+                    mousemove: (e) => {
+                        if (popupAbierto || enVuelo) e.target.closeTooltip();
+                    },
                     mouseout: (e) => capaRegiones.resetStyle(e.target),
                     click: (e) => {
                         L.DomEvent.stopPropagation(e);
-
                         if (enVuelo) return;
-                        // Al hacer clic en una región, hace zoom hacia ella
-                        // Excepción para Valparaíso (evita que Rapa Nui tire el centro al océano)
-                        if (props.codregion === 5 || (props.Region && props.Region.includes('Valparaíso'))) {
-                            // Coordenadas en el centro continental de la Región de Valparaíso (zona Quillota/Limache)
-                            centroRegion = [-32.90, -71.20];
-                        } else {
-                            // Para el resto de las regiones calcula su centro normal
-                            centroRegion = e.target.getBounds().getCenter();
-                        }
 
-                        map.flyTo(centroRegion, ZOOM_CORTE, { duration: 1 });
+                        e.target.closeTooltip();
+                        capaRegiones.resetStyle(e.target);
+                        layer.openPopup(e.latlng);
+                    },
+                    dblclick: (e) => {
+                        L.DomEvent.stopPropagation(e);
+                        if (enVuelo) return;
+
+                        e.target.closeTooltip();
+                        capaRegiones.resetStyle(e.target);
+                        enVuelo = true;
+
+                        let centroRegion = (props.codregion === 5 || (props.Region && props.Region.includes('Valparaíso')))
+                            ? [-32.90, -71.20]
+                            : e.target.getBounds().getCenter();
+
+                        map.flyTo(centroRegion, ZOOM_CORTE, { duration: 1.2 });
                     }
                 });
             }
         });
 
-
-
-        if (map.getZoom() < ZOOM_CORTE) {
-            capaRegiones.addTo(map);
-        }
-
+        // Capa persistente de bordes regionales gruesos para vista de comunas
         capaBordesRegiones = L.geoJSON(data, {
             style: estiloBordeRegiones
         });
@@ -135,50 +178,75 @@ fetch('/static/geojson/regiones.geojson')
     })
     .catch(err => console.error("Error cargando regiones.geojson:", err));
 
-// B. Cargar GeoJSON de Comunas (se guarda en memoria y se activa con zoom)
+// =========================================================================
+// 5. CAPA GEOJSON: COMUNAS DE CHILE
+// =========================================================================
 fetch('/static/geojson/comunas.geojson')
     .then(res => res.json())
     .then(data => {
         capaComunas = L.geoJSON(data, {
-            style: estiloComuna,
+            style: function (feature) {
+                const comNorm = normalizarTexto(feature.properties.Comuna);
+                const aire = aireComunas[comNorm];
+                return {
+                    color: '#34495e',
+                    weight: 1,
+                    fillColor: aire ? aire.color : '#bdc3c7',
+                    fillOpacity: aire ? 0.35 : 0.12
+                };
+            },
             onEachFeature: function (feature, layer) {
                 const props = feature.properties;
-                // Propiedades exactas de tu GeoJSON
                 const comuna = props.Comuna || 'Sin nombre';
-                const provincia = props.Provincia || '';
                 const region = props.Region || '';
+                const comNorm = normalizarTexto(comuna);
+                const aire = aireComunas[comNorm];
 
                 layer.bindTooltip(`<b>${comuna}</b>`, { sticky: true });
+
+                let htmlAire = aire
+                    ? `<span style="background: ${aire.color}; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; font-weight: bold;">
+                           ${aire.estado}
+                       </span>
+                       <span style="font-size: 0.85rem; margin-left: 5px;">
+                           <strong>${aire.valor} ${aire.unidad}</strong> (${aire.parametro})
+                       </span>
+                       <br><small style="color: #666;">Estación: ${aire.estaciones.join(', ')}</small>
+                       ${aire.fecha ? `<br><small style="color: gray;">Actualizado: ${aire.fecha}</small>` : ''}`
+                    : `<span style="color: gray; font-size: 0.85rem;">Sin estación SINCA en esta comuna</span>`;
+
                 layer.bindPopup(`
-                    <div style="font-family: sans-serif; min-width: 160px;">
-                        <h6 style="margin: 0 0 4px 0; font-weight: bold;">${comuna}</h6>
-                        <p style="margin: 0; font-size: 0.85rem;"><strong>Provincia:</strong> ${provincia}</p>
-                        <p style="margin: 0; font-size: 0.85rem;"><strong>Región:</strong> ${region}</p>
+                    <div style="font-family: sans-serif; min-width: 200px;">
+                        <h6 style="margin: 0 0 2px 0; font-weight: bold;">${comuna}</h6>
+                        <small style="color: gray; display: block; margin-bottom: 8px;">${region}</small>
+                        <div>
+                            <small style="color: #555; font-weight: bold; display: block; margin-bottom: 2px;">
+                                CALIDAD DEL AIRE (SINCA)
+                            </small>
+                            ${htmlAire}
+                        </div>
                     </div>
                 `);
 
                 layer.on({
                     mouseover: resaltarPoligono,
                     mousemove: (e) => {
-                        // Evita que el tooltip sticky reaparezca al mover el cursor con un popup abierto
-                        if (popupAbierto || enVuelo) {
-                            e.target.closeTooltip();
-                        }
+                        if (popupAbierto || enVuelo) e.target.closeTooltip();
                     },
                     mouseout: (e) => capaComunas.resetStyle(e.target),
                     click: (e) => {
                         L.DomEvent.stopPropagation(e);
-
                         if (enVuelo) return;
 
                         e.target.closeTooltip();
                         capaComunas.resetStyle(e.target);
                         enVuelo = true;
 
-                        const centerComuna = e.target.getBounds().getCenter();
+                        const centroComuna = e.target.getBounds().getCenter();
                         const zoomActual = map.getZoom();
-                        map.flyTo(centerComuna, zoomActual, { duration: .5 });
-                        layer.openPopup();
+
+                        map.flyTo(centroComuna, zoomActual, { duration: 1.0 });
+                        layer.openPopup(centroComuna);
                     }
                 });
             }
@@ -190,12 +258,13 @@ fetch('/static/geojson/comunas.geojson')
     })
     .catch(err => console.error("Error cargando comunas.geojson:", err));
 
-// C. Controlador de cambio automático según nivel de zoom
+// =========================================================================
+// 6. CONTROLADOR DE CAMBIO AUTOMÁTICO SEGÚN NIVEL DE ZOOM
+// =========================================================================
 map.on('zoomend', function () {
     const zoomActual = map.getZoom();
 
     if (zoomActual >= ZOOM_CORTE) {
-        // Oculta la capa interactiva de regiones y activa comunas + bordes regionales gruesos
         if (capaRegiones && map.hasLayer(capaRegiones)) {
             map.removeLayer(capaRegiones);
         }
@@ -206,7 +275,6 @@ map.on('zoomend', function () {
             map.addLayer(capaBordesRegiones);
         }
     } else {
-        // Vuelve a la vista general de regiones
         if (capaComunas && map.hasLayer(capaComunas)) {
             map.removeLayer(capaComunas);
         }
@@ -220,7 +288,7 @@ map.on('zoomend', function () {
 });
 
 // =========================================================================
-// 4. BUSCADOR DE LUGARES EN CHILE
+// 7. BUSCADOR DE LUGARES EN CHILE
 // =========================================================================
 const inputBuscar = document.getElementById('inputBuscar');
 let marcadorBusqueda = null;
@@ -241,7 +309,7 @@ if (inputBuscar) {
                         const lat = parseFloat(primerResultado.lat);
                         const lon = parseFloat(primerResultado.lon);
 
-                        // Al volar a zoom 12, se activará automáticamente la capa de comunas
+                        enVuelo = true;
                         map.flyTo([lat, lon], 12, { duration: 1.5 });
 
                         if (marcadorBusqueda) {
