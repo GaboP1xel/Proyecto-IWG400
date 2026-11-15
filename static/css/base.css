@@ -287,9 +287,15 @@ footer {
     cursor: pointer;
 }
 
-/* Efecto hover igual al del menú hamburguesa */
-.user-dropdown-menu .dropdown-item:hover,
-.user-dropdown-menu .dropdown-item:focus {
+button.dropdown-item {
+    width: 100%;
+    border: 0;
+    background: none;
+    font-family: inherit;
+    text-align: left;
+}
+
+.dropdown-item:hover {
     background-color: var(--app-base-gray-color, #f1f3f5);
     color: var(--app-base-color-dark, #3b5f8a);
 }
