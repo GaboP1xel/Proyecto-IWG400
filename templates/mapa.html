@@ -23,6 +23,8 @@
 {% block extra_js %}
     {{ aire_comunas|json_script:"aire-comunas-data" }}
     {{ aire_regiones|json_script:"aire-regiones-data" }}
+    {{ agua_comunas|json_script:"agua-comunas-data" }}
+    {{ agua_regiones|json_script:"agua-regiones-data" }}
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="{% static 'js/mapa.js' %}"></script>

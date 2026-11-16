@@ -1,5 +1,6 @@
 import json
 import logging
+import re
 import unicodedata
 from collections import defaultdict
 from django.conf import settings
@@ -12,7 +13,7 @@ _COMUNAS_POLIGONOS = None
 
 
 def normalizar_texto(texto: str) -> str:
-    """Pasa a mayúsculas y quita tildes para cruzar nombres sin errores."""
+    """Pasa a mayúsculas, quita tildes y normaliza espacios."""
     if not texto:
         return ""
     sin_tildes = unicodedata.normalize("NFD", str(texto)).encode("ascii", "ignore").decode("utf-8")
@@ -20,10 +21,18 @@ def normalizar_texto(texto: str) -> str:
 
 
 def normalizar_parametro(parametro: str) -> str:
-    """Unifica variantes como 'PM2.5', 'PM25' o 'MP2.5' en 'MP25'."""
+    """Limpia HTML, espacios y comas para unificar 'MP 2,5' -> 'MP25' y 'MP 10' -> 'MP10'."""
     if not parametro:
         return ""
-    return parametro.strip().upper().replace(".", "").replace("PM", "MP")
+    limpio = re.sub(r"<[^>]*>", "", str(parametro))
+    return (
+        limpio.strip()
+        .upper()
+        .replace(" ", "")
+        .replace(".", "")
+        .replace(",", "")
+        .replace("PM", "MP")
+    )
 
 
 def clasificar_mp25(valor: float) -> tuple[str, str]:
@@ -110,7 +119,6 @@ def _cargar_poligonos_comunas() -> list[dict]:
         else:
             continue
 
-        # Calcular caja envolvente (bounding box) para descartar rápido
         todos_puntos = [pt for poly in lista_poligonos for anillo in poly for pt in anillo]
         if not todos_puntos:
             continue

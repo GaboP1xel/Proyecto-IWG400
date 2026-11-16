@@ -147,7 +147,7 @@ body {
     margin: 0;
     display: none;
     flex-direction: column;
-    min-width: 210px;
+    min-width: 220px;
     z-index: 2000;
     animation: movement 0.2s ease-out;
 }
@@ -245,6 +245,7 @@ footer {
     z-index: 2500;
     border: 1px solid #e9ecef;
     border-top: none;
+    width: 220px;
 }
 
 /* Clase dinámica que activa el JS */
