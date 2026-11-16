@@ -337,12 +337,6 @@ fetch('/static/geojson/comunas.geojson')
                         enVuelo = true;
                         capaConPopupAbierto = layer;
 
-                        const centroComuna = e.target.getBounds().getCenter();
-                        const zoomActual = map.getZoom();
-                        if (!modoReporteActivo) {
-                            map.flyTo(centroComuna, zoomActual, { duration: 1.0 });
-                        }
-
                         layer.openPopup(centroComuna);
                     }
                 });
