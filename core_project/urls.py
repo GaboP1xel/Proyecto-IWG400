@@ -13,4 +13,7 @@ urlpatterns = [
     
     # Ruta para la app 'recopilacion'
     path('recopilacion/', include('recopilacion.urls')),
+
+    # Ruta para la app 'reportes'
+    path("reportes/", include("reportes.urls")),
 ]

@@ -43,6 +43,10 @@ map.on('moveend', function () {
 });
 
 map.on('popupopen', function (e) {
+    if (modoReporteActivo) {
+        map.closePopup(e.popup);
+        return
+    }
     popupAbierto = true;
     capaConPopupAbierto = e.popup._source || null;
 });
@@ -110,14 +114,12 @@ function resaltarPoligono(e) {
 // =========================================================================
 const selectorCapa = L.control({ position: 'topright' });
 selectorCapa.onAdd = function () {
-    const div = L.DomUtil.create('div', 'bg-white p-2 rounded shadow-sm border');
-    div.style.fontFamily = 'sans-serif';
-    div.style.fontSize = '0.82rem';
+    const div = L.DomUtil.create('div', 'layer-switcher-card');
     div.innerHTML = `
-        <div class="fw-bold text-muted mb-1" style="font-size: 0.72rem;">COLOREAR MAPA POR:</div>
-        <div class="btn-group btn-group-sm" role="group">
-            <button type="button" id="btnCapaAire" class="btn btn-primary active">Aire (SINCA)</button>
-            <button type="button" id="btnCapaAgua" class="btn btn-outline-primary">Agua (SISS)</button>
+        <div class="layer-switcher-title">COLOREAR MAPA POR:</div>
+        <div class="layer-switcher-group" role="group">
+            <button type="button" id="btnCapaAire" class="layer-switcher-btn active">Aire (SINCA)</button>
+            <button type="button" id="btnCapaAgua" class="layer-switcher-btn">Agua (SISS)</button>
         </div>
     `;
     L.DomEvent.disableClickPropagation(div);
@@ -129,10 +131,8 @@ document.addEventListener('click', function (e) {
     if (e.target.id === 'btnCapaAire' || e.target.id === 'btnCapaAgua') {
         capaActivaColor = e.target.id === 'btnCapaAgua' ? 'agua' : 'aire';
 
-        document.getElementById('btnCapaAire').className =
-            capaActivaColor === 'aire' ? 'btn btn-primary active' : 'btn btn-outline-primary';
-        document.getElementById('btnCapaAgua').className =
-            capaActivaColor === 'agua' ? 'btn btn-primary active' : 'btn btn-outline-primary';
+        document.getElementById('btnCapaAire').classList.toggle('active', capaActivaColor === 'aire');
+        document.getElementById('btnCapaAgua').classList.toggle('active', capaActivaColor === 'agua');
 
         if (capaRegiones) capaRegiones.setStyle(obtenerEstiloRegion);
         if (capaComunas) capaComunas.setStyle(obtenerEstiloComuna);
@@ -171,8 +171,8 @@ fetch('/static/geojson/regiones.geojson')
                            ${agua.estado}
                        </span>
                        ${agua.promedio !== null
-                           ? `<span style="font-size: 0.85rem; margin-left: 5px;"><strong>pH ${agua.promedio}</strong> (NCh 409: ${agua.limite})</span>`
-                           : ''}
+                        ? `<span style="font-size: 0.85rem; margin-left: 5px;"><strong>pH ${agua.promedio}</strong> (NCh 409: ${agua.limite})</span>`
+                        : ''}
                        <br><small style="color: #666;">${agua.total_servicios} servicio(s) SISS (${agua.periodo})</small>`
                     : `<span style="color: gray; font-size: 0.82rem;">Sin registros SISS disponibles</span>`;
 
@@ -207,6 +207,12 @@ fetch('/static/geojson/regiones.geojson')
                     mouseout: (e) => capaRegiones.resetStyle(e.target),
                     click: (e) => {
                         L.DomEvent.stopPropagation(e);
+
+                        if (modoReporteActivo) {
+                            layer.closePopup();
+                            moverPinUbicacion(e.latlng);
+                            return;
+                        }
                         if (enVuelo) return;
 
                         e.target.closeTooltip();
@@ -216,6 +222,11 @@ fetch('/static/geojson/regiones.geojson')
                     },
                     dblclick: (e) => {
                         L.DomEvent.stopPropagation(e);
+
+                        if (modoReporteActivo) {
+                            layer.closePopup();
+                            moverPinUbicacion(e.latlng);
+                        }
                         if (enVuelo) return;
 
                         e.target.closeTooltip();
@@ -278,8 +289,8 @@ fetch('/static/geojson/comunas.geojson')
                            ${agua.estado}
                        </span>
                        ${agua.valor !== null
-                           ? `<span style="font-size: 0.85rem; margin-left: 5px;"><strong>pH ${agua.valor}</strong> (Límite: ${agua.limite})</span>`
-                           : ''}
+                        ? `<span style="font-size: 0.85rem; margin-left: 5px;"><strong>pH ${agua.valor}</strong> (Límite: ${agua.limite})</span>`
+                        : ''}
                        <br><small style="color: #666;">Servicio: ${agua.servicios.join(', ')}</small>
                        <br><small style="color: gray;">Periodo SISS: ${agua.periodo}</small>`
                     : `<span style="color: gray; font-size: 0.82rem;">Sin servicio SISS registrado en esta comuna</span>`;
@@ -313,6 +324,12 @@ fetch('/static/geojson/comunas.geojson')
                     mouseout: (e) => capaComunas.resetStyle(e.target),
                     click: (e) => {
                         L.DomEvent.stopPropagation(e);
+
+                        if (modoReporteActivo) {
+                            layer.closePopup();
+                            moverPinUbicacion(e.latlng);
+                            return;
+                        }
                         if (enVuelo) return;
 
                         e.target.closeTooltip();
@@ -322,8 +339,10 @@ fetch('/static/geojson/comunas.geojson')
 
                         const centroComuna = e.target.getBounds().getCenter();
                         const zoomActual = map.getZoom();
+                        if (!modoReporteActivo) {
+                            map.flyTo(centroComuna, zoomActual, { duration: 1.0 });
+                        }
 
-                        map.flyTo(centroComuna, zoomActual, { duration: 1.0 });
                         layer.openPopup(centroComuna);
                     }
                 });
@@ -352,12 +371,18 @@ map.on('zoomend', function () {
         if (capaBordesRegiones && !map.hasLayer(capaBordesRegiones)) {
             map.addLayer(capaBordesRegiones);
         }
+        if (capaReportes && !map.hasLayer(capaReportes)) {
+            map.addLayer(capaReportes);
+        }
     } else {
         if (capaComunas && map.hasLayer(capaComunas)) {
             map.removeLayer(capaComunas);
         }
         if (capaBordesRegiones && map.hasLayer(capaBordesRegiones)) {
             map.removeLayer(capaBordesRegiones);
+        }
+        if (capaReportes && map.hasLayer(capaReportes)) {
+            map.removeLayer(capaReportes);
         }
         if (capaRegiones && !map.hasLayer(capaRegiones)) {
             map.addLayer(capaRegiones);
@@ -557,3 +582,376 @@ if (inputBuscar) {
         }
     });
 }
+
+// ===============================================================
+// 9. SISTEMA DE REPORTES CIUDADANOS (MODO REPORTE, PINES Y VOTOS
+// ===============================================================
+const isAuthenticated = JSON.parse(document.getElementById('user-auth-data')?.textContent || 'false');
+
+const CATALOGO_REPORTES = {
+    agua: {
+        nombre: 'Agua',
+        color: '#0d6efd',
+        svgPin: '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>',
+        etiquetaEscala: '3. Nivel de gravedad (1 al 3)',
+        problemas: [
+            'Zona de desperdicios líquidos',
+            'Agua contaminada por químicos',
+            'Agua con residuos sólidos / contaminación humana',
+        ],
+    },
+    aire: {
+        nombre: 'Aire',
+        color: '#6f42c1',
+        svgPin: '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M14.5 17c0 1.65-1.35 3-3 3s-3-1.35-3-3h2c0 .55.45 1 1 1s1-.45 1-1-.45-1-1-1H2v-2h9.5c1.65 0 3 1.35 3 3zM19 6.5C19 4.57 17.43 3 15.5 3S12 4.57 12 6.5h2c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5S16.33 8 15.5 8H2v2h13.5c1.93 0 3.5-1.57 3.5-3.5zm-.5 4.5H2v2h16.5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5v2c1.93 0 3.5-1.57 3.5-3.5S20.43 11 18.5 11z"/></svg>',
+        etiquetaEscala: '3. Nivel de gravedad (1 al 3)',
+        problemas: [
+            'Aire pesado / humo',
+            'Mal olor',
+        ],
+    },
+    residuos: {
+        nombre: 'Residuos Sólidos',
+        color: '#fd7e14',
+        svgPin: '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>',
+        etiquetaEscala: '3. Cantidad de residuos (1 al 3)',
+        problemas: [
+            'Microbasural / acumulación de basura',
+            'Escombros o residuos voluminosos',
+            'Contenedor / punto de acopio desbordado',
+        ],
+    },
+};
+
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+    return '';
+}
+
+// Controladores puros de Modales
+function abrirModal(modalEl) {
+    if (modalEl) modalEl.classList.add('open');
+}
+
+function cerrarModal(modalEl) {
+    if (modalEl) modalEl.classList.remove('open');
+}
+
+document.querySelectorAll('[data-close-modal]').forEach(btn => {
+    btn.addEventListener('click', () => {
+        cerrarModal(document.getElementById(btn.dataset.closeModal));
+    });
+});
+
+document.querySelectorAll('.rep-modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) cerrarModal(overlay);
+    });
+});
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        document.querySelectorAll('.rep-modal-overlay.open').forEach(cerrarModal);
+    }
+});
+
+// Estado global de reportes
+let modoReporteActivo = false;
+let pinUbicacionReporte = null;
+let seleccionReporte = { categoria: null, problema: null, gravedad: null, lat: null, lon: null };
+let reporteActualModal = null;
+const capaReportes = L.layerGroup();
+const marcadoresReportesPorId = new Map();
+
+const modalLoginEl = document.getElementById('modalLoginRequerido');
+const modalCrearEl = document.getElementById('modalCrearReporte');
+const modalDetalleEl = document.getElementById('modalDetalleReporte');
+
+const bannerModoReporte = document.getElementById('banner-modo-reporte');
+const btnAbrirReporte = document.getElementById('btn-abrir-reporte');
+
+if (map.getZoom() >= ZOOM_CORTE) {
+    capaReportes.addTo(map);
+}
+
+function moverPinUbicacion(latlng) {
+    seleccionReporte.lat = latlng.lat;
+    seleccionReporte.lon = latlng.lng;
+    if (pinUbicacionReporte) {
+        pinUbicacionReporte.setLatLng(latlng);
+    }
+}
+
+function activarModoReporte() {
+    map.closePopup();
+    popupAbierto = false;
+    capaConPopupAbierto = null;
+
+    modoReporteActivo = true;
+    bannerModoReporte.classList.remove('hidden');
+    btnAbrirReporte.classList.add('hidden');
+
+    const centroActual = map.getCenter();
+    seleccionReporte = {
+        categoria: null,
+        problema: null,
+        gravedad: null,
+        lat: centroActual.lat,
+        lon: centroActual.lng,
+    };
+
+    if (pinUbicacionReporte) map.removeLayer(pinUbicacionReporte);
+    pinUbicacionReporte = L.marker(centroActual, {
+        draggable: true,
+        zIndexOffset: 1000,
+    })
+        .addTo(map)
+        .bindTooltip('Arrástrame o haz clic en el mapa', {
+            permanent: true,
+            direction: 'top',
+            interactive: false,
+        });
+
+    pinUbicacionReporte.on('dragend', function (e) {
+        moverPinUbicacion(e.target.getLatLng());
+    });
+}
+
+function desactivarModoReporte() {
+    modoReporteActivo = false;
+    bannerModoReporte.classList.add('hidden');
+    btnAbrirReporte.classList.remove('hidden');
+    if (pinUbicacionReporte) {
+        map.removeLayer(pinUbicacionReporte);
+        pinUbicacionReporte = null;
+    }
+}
+
+function centrarEnGPS() {
+    if (!navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(
+        function (pos) {
+            if (!modoReporteActivo) return;
+            const latlng = L.latLng(pos.coords.latitude, pos.coords.longitude);
+            map.flyTo(latlng, Math.max(map.getZoom(), 15), { duration: 1.0 });
+            moverPinUbicacion(latlng);
+        },
+        function () { },
+        { enableHighAccuracy: true, timeout: 5000 }
+    );
+}
+
+map.on('click', function (e) {
+    if (modoReporteActivo) {
+        moverPinUbicacion(e.latlng);
+    }
+});
+
+if (btnAbrirReporte) {
+    btnAbrirReporte.addEventListener('click', function () {
+        if (!isAuthenticated) {
+            abrirModal(modalLoginEl);
+            return;
+        }
+        activarModoReporte();
+    });
+}
+
+document.getElementById('btn-gps-reporte')?.addEventListener('click', centrarEnGPS);
+document.getElementById('btn-cancelar-reporte')?.addEventListener('click', desactivarModoReporte);
+
+document.getElementById('btn-confirmar-ubicacion')?.addEventListener('click', function () {
+    resetearFormularioReporte();
+    abrirModal(modalCrearEl);
+});
+
+// Lógica interna del Modal de Creación (Waze)
+function resetearFormularioReporte() {
+    seleccionReporte.categoria = null;
+    seleccionReporte.problema = null;
+    seleccionReporte.gravedad = null;
+
+    document.querySelectorAll('.rep-cat-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.rep-grav-btn').forEach(btn => btn.classList.remove('active'));
+    document.getElementById('bloque-problema').classList.add('hidden');
+    document.getElementById('bloque-gravedad').classList.add('hidden');
+    document.getElementById('btn-enviar-reporte').disabled = true;
+}
+
+function validarFormularioReporte() {
+    const listo = Boolean(seleccionReporte.categoria && seleccionReporte.problema && seleccionReporte.gravedad);
+    document.getElementById('btn-enviar-reporte').disabled = !listo;
+}
+
+document.querySelectorAll('.rep-cat-btn').forEach(btn => {
+    btn.addEventListener('click', function () {
+        document.querySelectorAll('.rep-cat-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+
+        const cat = this.dataset.cat;
+        seleccionReporte.categoria = cat;
+        seleccionReporte.problema = null;
+        seleccionReporte.gravedad = null;
+
+        const config = CATALOGO_REPORTES[cat];
+        const listaProblemas = document.getElementById('lista-problemas');
+        listaProblemas.innerHTML = '';
+
+        config.problemas.forEach(prob => {
+            const itemBtn = document.createElement('button');
+            itemBtn.type = 'button';
+            itemBtn.className = 'rep-prob-btn';
+            itemBtn.textContent = prob;
+            itemBtn.addEventListener('click', function () {
+                listaProblemas.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                seleccionReporte.problema = prob;
+                document.getElementById('titulo-gravedad').textContent = config.etiquetaEscala;
+                document.getElementById('bloque-gravedad').classList.remove('hidden');
+                validarFormularioReporte();
+            });
+            listaProblemas.appendChild(itemBtn);
+        });
+
+        document.getElementById('bloque-problema').classList.remove('hidden');
+        document.getElementById('bloque-gravedad').classList.add('hidden');
+        document.querySelectorAll('.rep-grav-btn').forEach(b => b.classList.remove('active'));
+        validarFormularioReporte();
+    });
+});
+
+document.querySelectorAll('.rep-grav-btn').forEach(btn => {
+    btn.addEventListener('click', function () {
+        document.querySelectorAll('.rep-grav-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        seleccionReporte.gravedad = parseInt(this.dataset.grav, 10);
+        validarFormularioReporte();
+    });
+});
+
+document.getElementById('btn-enviar-reporte')?.addEventListener('click', function () {
+    const btnEnviar = this;
+    btnEnviar.disabled = true;
+
+    fetch('/reportes/api/crear/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken'),
+        },
+        body: JSON.stringify(seleccionReporte),
+    })
+        .then(res => res.json())
+        .then(data => {
+            if (data.ok && data.reporte) {
+                dibujarPinReporte(data.reporte);
+                cerrarModal(modalCrearEl);
+                desactivarModoReporte();
+            } else {
+                alert(data.error || 'No se pudo guardar el reporte.');
+                btnEnviar.disabled = false;
+            }
+        })
+        .catch(() => {
+            alert('Error de conexión al enviar el reporte.');
+            btnEnviar.disabled = false;
+        });
+});
+
+// Dibujo de pines y Modal de Votación
+function dibujarPinReporte(rep) {
+    const config = CATALOGO_REPORTES[rep.categoria] || CATALOGO_REPORTES.residuos;
+    const iconoHtml = L.divIcon({
+        className: '',
+        html: `<div class="report-pin-badge" style="background:${config.color};">
+                   ${config.svgPin}
+                   <span class="report-pin-level">${rep.gravedad}</span>
+               </div>`,
+        iconSize: [34, 34],
+        iconAnchor: [17, 17],
+    });
+
+    const marker = L.marker([rep.lat, rep.lon], { icon: iconoHtml }).addTo(capaReportes);
+    marker.reporteData = rep;
+    marker.on('click', function (e) {
+        L.DomEvent.stopPropagation(e);
+        if (modoReporteActivo) return;
+        abrirModalDetalleReporte(marker.reporteData);
+    });
+
+    marcadoresReportesPorId.set(rep.id, marker);
+}
+
+function actualizarBotonesVoto(rep) {
+    const btnLike = document.getElementById('btn-voto-like');
+    const btnDislike = document.getElementById('btn-voto-dislike');
+
+    document.getElementById('det-likes').textContent = rep.likes;
+    document.getElementById('det-dislikes').textContent = rep.dislikes;
+
+    btnLike.classList.toggle('active-like', rep.mi_voto === 1);
+    btnDislike.classList.toggle('active-dislike', rep.mi_voto === -1);
+}
+
+function abrirModalDetalleReporte(rep) {
+    reporteActualModal = rep;
+    const config = CATALOGO_REPORTES[rep.categoria] || CATALOGO_REPORTES.residuos;
+
+    const badgeCat = document.getElementById('det-badge-cat');
+    badgeCat.textContent = rep.categoria_display;
+    badgeCat.style.backgroundColor = config.color;
+
+    document.getElementById('det-badge-grav').textContent = `Nivel ${rep.gravedad}/3`;
+    document.getElementById('det-problema').textContent = rep.problema;
+    document.getElementById('det-usuario').textContent = rep.usuario;
+    document.getElementById('det-fecha').textContent = rep.fecha;
+
+    actualizarBotonesVoto(rep);
+    abrirModal(modalDetalleEl);
+}
+
+function enviarVoto(valor) {
+    if (!reporteActualModal) return;
+    if (!isAuthenticated) {
+        cerrarModal(modalDetalleEl);
+        abrirModal(modalLoginEl);
+        return;
+    }
+
+    fetch(`/reportes/api/${reporteActualModal.id}/votar/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken'),
+        },
+        body: JSON.stringify({ valor }),
+    })
+        .then(res => {
+            if (res.status === 401) {
+                cerrarModal(modalDetalleEl);
+                abrirModal(modalLoginEl);
+                return null;
+            }
+            return res.json();
+        })
+        .then(data => {
+            if (!data || !data.ok) return;
+            reporteActualModal.likes = data.likes;
+            reporteActualModal.dislikes = data.dislikes;
+            reporteActualModal.mi_voto = data.mi_voto;
+            actualizarBotonesVoto(reporteActualModal);
+        });
+}
+
+document.getElementById('btn-voto-like')?.addEventListener('click', () => enviarVoto(1));
+document.getElementById('btn-voto-dislike')?.addEventListener('click', () => enviarVoto(-1));
+
+// Cargar reportes existentes al iniciar
+fetch('/reportes/api/')
+    .then(res => res.json())
+    .then(data => {
+        (data.reportes || []).forEach(dibujarPinReporte);
+    })
+    .catch(err => console.error('Error cargando reportes ciudadanos:', err));

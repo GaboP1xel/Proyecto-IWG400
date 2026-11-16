@@ -61,7 +61,7 @@ body {
     background: white;
     border-radius: 20px;
     overflow: hidden;
-    box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .nav-search-input {
@@ -129,8 +129,13 @@ body {
 }
 
 @keyframes bg-change {
-    from { background-color: transparent; }
-    to { background-color: var(--app-base-color-dark); }
+    from {
+        background-color: transparent;
+    }
+
+    to {
+        background-color: var(--app-base-color-dark);
+    }
 }
 
 
@@ -153,8 +158,15 @@ body {
 }
 
 @keyframes movement {
-    from { opacity: 0; right: -15px; }
-    to { opacity: 1; right: 0; }
+    from {
+        opacity: 0;
+        right: -15px;
+    }
+
+    to {
+        opacity: 1;
+        right: 0;
+    }
 }
 
 .nav-menu li a {
@@ -255,8 +267,15 @@ footer {
 }
 
 @keyframes right {
-    from { opacity: 0; right: -30px; }
-    to { opacity: 1; right: -15px; }
+    from {
+        opacity: 0;
+        right: -30px;
+    }
+
+    to {
+        opacity: 1;
+        right: -15px;
+    }
 }
 
 .user-dropdown-menu li {
@@ -325,4 +344,580 @@ button.dropdown-item {
 .user-dropdown-menu .dropdown-item.text-danger:focus {
     background-color: #fff5f5;
     color: #b02a37;
+}
+
+
+/* SELECTOR DE CAPA VISUAL: AIRE (SINCA) ó AGUA (SISS) */
+.layer-switcher-card {
+    background-color: #ffffff;
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 1px solid rgba(0, 0, 0, 0.175);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+    font-family: var(--app-text-style, system-ui, -apple-system, sans-serif);
+    font-size: 0.82rem;
+}
+
+.layer-switcher-title {
+    font-weight: 700;
+    color: #6c757d;
+    font-size: 0.72rem;
+    margin-bottom: 5px;
+    letter-spacing: 0.2px;
+}
+
+.layer-switcher-group {
+    display: inline-flex;
+}
+
+.layer-switcher-btn {
+    background-color: #ffffff;
+    color: #0d6efd;
+    border: 1px solid #0d6efd;
+    padding: 8px 10px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.layer-switcher-btn:first-child {
+    border-radius: 2rem 0 0 2rem;
+}
+
+.layer-switcher-btn:last-child {
+    border-radius: 0 2rem 2rem 0;
+    margin-left: -1px; /* Evita doble borde en el centro */
+}
+
+.layer-switcher-btn:hover:not(.active) {
+    background-color: rgba(13, 110, 253, 0.1);
+}
+
+.layer-switcher-btn.active {
+    background-color: #0d6efd;
+    color: #ffffff;
+    position: relative;
+    z-index: 1;
+}
+
+
+/* =========================================================================
+   ESTILOS DEL SISTEMA DE REPORTES CIUDADANOS (CSS PURO)
+   ========================================================================= */
+
+.hidden {
+    display: none !important;
+}
+
+/* Botón flotante inferior derecho (ubicado sobre el footer de 35px) */
+.btn-floating-report {
+    position: fixed;
+    bottom: 70px;
+    right: 22px;
+    z-index: 1200;
+    background-color: #dc3545;
+    color: #ffffff;
+    border: none;
+    border-radius: 50px;
+    padding: 12px 22px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 14px rgba(220, 53, 69, 0.45);
+    cursor: pointer;
+    transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+.btn-floating-report:hover {
+    background-color: #bb2d3b;
+    transform: translateY(-2px);
+}
+
+/* Banner de Modo Reporte justo debajo del header de 60px */
+.report-mode-banner {
+    position: fixed;
+    top: 72px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1300;
+    background-color: rgba(33, 37, 41, 0.96);
+    color: #ffffff;
+    padding: 10px 18px;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: min(92%, 780px);
+    box-sizing: border-box;
+    font-size: 0.9rem;
+}
+
+.report-banner-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.report-banner-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Botones reutilizables */
+.rep-btn {
+    border: none;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: background-color 0.15s ease, opacity 0.15s ease;
+}
+
+.rep-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.rep-btn-lg {
+    padding: 11px 22px;
+    font-size: 0.95rem;
+}
+
+.rep-btn-ghost {
+    background-color: transparent;
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.45);
+}
+
+.rep-btn-ghost:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+.rep-btn-secondary {
+    background-color: #6c757d;
+    color: #ffffff;
+}
+
+.rep-btn-secondary:hover {
+    background-color: #5a6268;
+}
+
+.rep-btn-success {
+    background-color: #198754;
+    color: #ffffff;
+}
+
+.rep-btn-success:hover:not(:disabled) {
+    background-color: #157347;
+}
+
+/* Sistema de Modales Puros */
+.rep-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 3000;
+    background-color: rgba(0, 0, 0, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    box-sizing: border-box;
+}
+
+.rep-modal-overlay.open {
+    display: flex;
+    animation: repFadeIn 0.18s ease-out;
+}
+
+@keyframes repFadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.rep-modal-card {
+    background-color: #ffffff;
+    width: 100%;
+    max-width: 460px;
+    border-radius: 14px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.rep-modal-header {
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.rep-header-dark {
+    background-color: #212529;
+    color: #ffffff;
+    border-bottom: none;
+}
+
+.rep-modal-header h3 {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+}
+
+.rep-modal-close {
+    background: none;
+    border: none;
+    color: #ffffff;
+    font-size: 1.6rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0 4px;
+    opacity: 0.8;
+}
+
+.rep-modal-close.rep-close-dark {
+    color: #495057;
+}
+
+.rep-modal-close:hover {
+    opacity: 1;
+}
+
+.rep-modal-body {
+    padding: 20px;
+}
+
+.rep-text-center {
+    text-align: center;
+}
+
+.rep-modal-desc {
+    margin: 0 0 18px 0;
+    color: #495057;
+    font-size: 0.95rem;
+    line-height: 1.45;
+}
+
+.rep-modal-footer {
+    padding: 12px 20px;
+    background-color: #f8f9fa;
+    border-top: 1px solid #e9ecef;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+/* Pasos del formulario Waze */
+.rep-step-group {
+    margin-bottom: 18px;
+}
+
+.rep-step-group:last-child {
+    margin-bottom: 0;
+}
+
+.rep-step-label {
+    display: block;
+    font-weight: 700;
+    font-size: 0.92rem;
+    color: #212529;
+    margin-bottom: 10px;
+}
+
+/* Grid de 3 categorías */
+.rep-cat-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.rep-cat-btn {
+    background-color: #ffffff;
+    border: 2px solid #dee2e6;
+    border-radius: 10px;
+    padding: 14px 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    font-family: inherit;
+    color: #343a40;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.rep-cat-btn[data-cat="agua"] {
+    color: #0d6efd;
+}
+
+.rep-cat-btn[data-cat="aire"] {
+    color: #6f42c1;
+}
+
+.rep-cat-btn[data-cat="residuos"] {
+    color: #d96b08;
+}
+
+.rep-cat-btn:hover {
+    background-color: #f8f9fa;
+    transform: translateY(-1px);
+}
+
+.rep-cat-btn[data-cat="agua"].active {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+    color: #ffffff;
+}
+
+.rep-cat-btn[data-cat="aire"].active {
+    background-color: #6f42c1;
+    border-color: #6f42c1;
+    color: #ffffff;
+}
+
+.rep-cat-btn[data-cat="residuos"].active {
+    background-color: #fd7e14;
+    border-color: #fd7e14;
+    color: #ffffff;
+}
+
+/* Lista vertical de problemas */
+.rep-prob-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.rep-prob-btn {
+    width: 100%;
+    text-align: left;
+    background-color: #ffffff;
+    border: 1.5px solid #ced4da;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    font-family: inherit;
+    color: #212529;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.rep-prob-btn:hover {
+    background-color: #f1f3f5;
+}
+
+.rep-prob-btn.active {
+    background-color: var(--app-base-color-dark, #3b5f8a);
+    border-color: var(--app-base-color-dark, #3b5f8a);
+    color: #ffffff;
+    font-weight: 600;
+}
+
+/* Escala de Gravedad 1 - 3 */
+.rep-grav-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.rep-grav-btn {
+    background-color: #ffffff;
+    border: 2px solid #dee2e6;
+    border-radius: 10px;
+    padding: 10px 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.rep-grav-btn strong {
+    font-size: 1.15rem;
+}
+
+.rep-grav-btn small {
+    font-size: 0.78rem;
+}
+
+.rep-grav-btn.grav-1 {
+    color: #198754;
+    border-color: #a3cfbb;
+}
+
+.rep-grav-btn.grav-2 {
+    color: #b86e00;
+    border-color: #ffe69c;
+}
+
+.rep-grav-btn.grav-3 {
+    color: #dc3545;
+    border-color: #f1aeb5;
+}
+
+.rep-grav-btn.grav-1.active {
+    background-color: #198754;
+    border-color: #198754;
+    color: #ffffff;
+}
+
+.rep-grav-btn.grav-2.active {
+    background-color: #fd7e14;
+    border-color: #fd7e14;
+    color: #ffffff;
+}
+
+.rep-grav-btn.grav-3.active {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: #ffffff;
+}
+
+/* Modal de Detalle y Votos */
+.rep-badges-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.rep-badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #ffffff;
+    background-color: #0d6efd;
+}
+
+.rep-badge-dark {
+    background-color: #212529;
+}
+
+.rep-det-title {
+    margin: 0 0 6px 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #212529;
+}
+
+.rep-det-meta {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+.rep-divider {
+    border: 0;
+    border-top: 1px solid #e9ecef;
+    margin: 16px 0;
+}
+
+.rep-vote-question {
+    margin: 0 0 12px 0;
+    text-align: center;
+    font-size: 0.88rem;
+    color: #495057;
+}
+
+.rep-vote-group {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+}
+
+.rep-vote-btn {
+    flex: 1;
+    max-width: 175px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    font-family: inherit;
+    background-color: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.rep-vote-btn.vote-like {
+    border: 2px solid #198754;
+    color: #198754;
+}
+
+.rep-vote-btn.vote-like:hover,
+.rep-vote-btn.vote-like.active-like {
+    background-color: #198754;
+    color: #ffffff;
+}
+
+.rep-vote-btn.vote-dislike {
+    border: 2px solid #dc3545;
+    color: #dc3545;
+}
+
+.rep-vote-btn.vote-dislike:hover,
+.rep-vote-btn.vote-dislike.active-dislike {
+    background-color: #dc3545;
+    color: #ffffff;
+}
+
+/* Pines de reportes en el mapa Leaflet */
+.report-pin-badge {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #ffffff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+    position: relative;
+}
+
+.report-pin-level {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: #212529;
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 700;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #ffffff;
 }
