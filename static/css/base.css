@@ -921,3 +921,83 @@ button.dropdown-item {
     justify-content: center;
     border: 1px solid #ffffff;
 }
+
+/* --- ESTILOS DEL MODAL (ACERCA DE) --- */
+.base-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.55);
+    display: none; /* Oculto por defecto */
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    z-index: 3000;
+    backdrop-filter: blur(2px);
+}
+
+.base-modal-overlay.open {
+    display: flex;
+    animation: modalFadeIn 0.2s ease-out;
+}
+
+@keyframes modalFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.base-modal-card {
+    background-color: #ffffff;
+    width: min(92%, 520px);
+    max-height: 85dvh;
+    border-radius: 12px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    font-family: var(--app-text-style, system-ui, sans-serif);
+    animation: modalSlideUp 0.22s ease-out;
+}
+
+@keyframes modalSlideUp {
+    from { opacity: 0; transform: translateY(12px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.base-modal-header {
+    background-color: var(--app-base-color, #558ac0);
+    color: #ffffff;
+    padding: 1rem 1.4rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.base-modal-header h3 {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 600;
+}
+
+.base-modal-close {
+    background: none;
+    border: none;
+    color: #ffffff;
+    font-size: 1.6rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0 0.25rem;
+    transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.base-modal-close:hover {
+    transform: scale(1.15);
+    opacity: 0.85;
+}
+
+.base-modal-body {
+    padding: 1.4rem;
+    color: #333333;
+    font-size: 0.95rem;
+    line-height: 1.55;
+    overflow-y: auto;
+}

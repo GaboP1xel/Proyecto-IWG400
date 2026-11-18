@@ -38,8 +38,7 @@
 
                 <ul class="nav-menu">
                     <li><a href="{% url 'mapa' %}">Inicio</a></li>
-                    <li><a>Acerca de</a></li>
-                    <li><a>Contacto</a></li>
+                    <li><a href="#" id="btn-acerca-de">Acerca de</a></li>
                 </ul>
 
                 <div class="nav-user" style="position: relative;">
@@ -88,6 +87,25 @@
         {% block content %}
         {% endblock %}
     </main>
+
+    <!-- Justo antes de <script src="{% static 'js/base.js' %}"></script> -->
+    <aside id="modal-acerca-de" class="base-modal-overlay" role="dialog" aria-modal="true"
+        aria-labelledby="titulo-modal-acerca">
+        <div class="base-modal-card">
+            <div class="base-modal-header">
+                <h3 id="titulo-modal-acerca">Equipo SyntaxError</h3>
+                <button type="button" id="btn-cerrar-acerca-de" class="base-modal-close"
+                    aria-label="Cerrar">&times;</button>
+            </div>
+            <div class="base-modal-body">
+                <h2>Acerca de este proyecto</h2>
+                <p>Hola, somos SyntaxError, un equipo originado del ramo IWG400 de Ingeniería Civil Informática de la UTFSM.</p>
+                <p> Resumidamente este proyecto es un mapa interactivo que permite a los usuarios reportar y visualizar incidentes en tiempo real, con el objetivo de mejorar la seguridad y la comunicación en nuestra comunidad.</p>
+                <p>Esperamos que esta herramienta sea útil para la comunidad y contribuya a un entorno más seguro y colaborativo. Agradecemos a todos los que han apoyado y contribuido al desarrollo de este proyecto.</p>
+                <p>¡Gracias por visitar nuestro proyecto!</p>
+            </div>
+        </div>
+    </aside>
 
     <footer>
         <p>&copy; 2026 Nombre-App. Todos los derechos reservados.</p>
