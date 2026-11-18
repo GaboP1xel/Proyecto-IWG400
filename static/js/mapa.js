@@ -666,16 +666,60 @@ const modalDetalleEl = document.getElementById('modalDetalleReporte');
 const bannerModoReporte = document.getElementById('banner-modo-reporte');
 const btnAbrirReporte = document.getElementById('btn-abrir-reporte');
 
+const modalErrorUbicacionEl = document.getElementById('modalErrorUbicacion');
+let ultimaUbicacionValida = null;
+
 if (map.getZoom() >= ZOOM_CORTE) {
     capaReportes.addTo(map);
 }
 
+function estaEnChile(lat, lon) {
+    const capas = [capaRegiones, capaComunas].filter(Boolean);
+    if (capas.length === 0) {
+        // Respaldo si los GeoJSON aún no terminan de cargar
+        return lat >= -56.5 && lat <= -17.4 && lon >= -109.5 && lon <= -66.3;
+    }
+
+    for (const capa of capas) {
+        let dentro = false;
+        capa.eachLayer(function (layer) {
+            if (dentro) return;
+            const geom = layer.feature?.geometry;
+            if (!geom) return;
+
+            if (geom.type === 'Polygon' && _puntoEnPoligono(lon, lat, geom.coordinates)) {
+                dentro = true;
+            } else if (geom.type === 'MultiPolygon') {
+                for (const poly of geom.coordinates) {
+                    if (_puntoEnPoligono(lon, lat, poly)) {
+                        dentro = true;
+                        break;
+                    }
+                }
+            }
+        });
+        if (dentro) return true;
+    }
+    return false;
+}
+
 function moverPinUbicacion(latlng) {
+    if (!estaEnChile(latlng.lat, latlng.lng)) {
+        // Devuelve el pin a la última posición válida dentro de Chile sin salir del Modo Reporte
+        if (pinUbicacionReporte && ultimaUbicacionValida) {
+            pinUbicacionReporte.setLatLng(ultimaUbicacionValida);
+        }
+        abrirModal(modalErrorUbicacionEl);
+        return false;
+    }
+
+    ultimaUbicacionValida = latlng;
     seleccionReporte.lat = latlng.lat;
     seleccionReporte.lon = latlng.lng;
     if (pinUbicacionReporte) {
         pinUbicacionReporte.setLatLng(latlng);
     }
+    return true;
 }
 
 function activarModoReporte() {
@@ -688,12 +732,15 @@ function activarModoReporte() {
     btnAbrirReporte.classList.add('hidden');
 
     const centroActual = map.getCenter();
+    const centroEsValido = estaEnChile(centroActual.lat, centroActual.lng);
+
+    ultimaUbicacionValida = centroEsValido ? centroActual : null;
     seleccionReporte = {
         categoria: null,
         problema: null,
         gravedad: null,
-        lat: centroActual.lat,
-        lon: centroActual.lng,
+        lat: centroEsValido ? centroActual.lat : null,
+        lon: centroEsValido ? centroActual.lng : null,
     };
 
     if (pinUbicacionReporte) map.removeLayer(pinUbicacionReporte);
@@ -711,6 +758,10 @@ function activarModoReporte() {
     pinUbicacionReporte.on('dragend', function (e) {
         moverPinUbicacion(e.target.getLatLng());
     });
+
+    if (!centroEsValido) {
+        abrirModal(modalErrorUbicacionEl);
+    }
 }
 
 function desactivarModoReporte() {

@@ -53,3 +53,20 @@ leaflet-interactive:focus,
 .leaflet-container path:focus {
     outline: none;
 }
+
+/* Estilos para el modal de error por pin fuera de los límites */
+
+.rep-header-danger {
+    background-color: #dc3545;
+    color: #ffffff;
+    border-bottom: none;
+}
+
+.rep-btn-danger {
+    background-color: #dc3545;
+    color: #ffffff;
+}
+
+.rep-btn-danger:hover {
+    background-color: #bb2d3b;
+}
